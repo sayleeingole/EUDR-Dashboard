@@ -8,12 +8,17 @@ to change (to AD/SSO) — routers already call `current_actor(request)`, never
 the cookie or `getpass` directly.
 """
 
+import os
+
 import itsdangerous
 from fastapi import Request
 
-# Local single-user/small-team deployment only. Rotate and move to an env
-# var before this app is ever exposed beyond the KLK network.
-SECRET_KEY = "eudr-dashboard-local-dev-secret-2026"
+# Set EUDR_SECRET_KEY in the hosting environment (Render → Environment). The
+# fallback is only for local development.
+SECRET_KEY = os.environ.get("EUDR_SECRET_KEY", "eudr-dashboard-local-dev-secret-2026")
+# Shared access password for hosted deployments. If EUDR_ACCESS_PASSWORD is
+# unset (local dev), the login page only asks for a name.
+ACCESS_PASSWORD = os.environ.get("EUDR_ACCESS_PASSWORD", "")
 COOKIE_NAME = "eudr_actor"
 MAX_AGE = 60 * 60 * 24 * 30  # 30 days
 

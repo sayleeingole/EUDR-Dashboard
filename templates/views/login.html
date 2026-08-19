@@ -11,6 +11,11 @@
     <label>Your name
       <input type="text" name="name" required autofocus>
     </label>
+    {% if needs_password %}
+    <label>Access password
+      <input type="password" name="password" required>
+    </label>
+    {% endif %}
     <button type="submit" class="btn-primary">Sign in</button>
   </form>
 </div>

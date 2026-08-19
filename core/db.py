@@ -3,6 +3,7 @@ content, decisions, sign-off versions, rules, or audit events — only the narro
 status transitions implemented here."""
 
 import json
+import os
 import sqlite3
 from datetime import datetime
 from pathlib import Path
@@ -10,7 +11,9 @@ from pathlib import Path
 from .source_type import classify_source
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DB_PATH = BASE_DIR / "data" / "eudr.sqlite"
+# EUDR_DB_PATH lets a hosted deployment keep the database on a persistent
+# disk (e.g. /data/eudr.sqlite on Render) instead of inside the repo checkout.
+DB_PATH = Path(os.environ.get("EUDR_DB_PATH") or BASE_DIR / "data" / "eudr.sqlite")
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema.sql"
 SEEDS_DIR = BASE_DIR / "data" / "seeds"
 
