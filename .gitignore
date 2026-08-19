@@ -1,0 +1,31 @@
+# Database (real working data — not source code, don't push to git)
+data/eudr.sqlite
+data/*.sqlite
+data/*.sqlite-journal
+data/*.sqlite-wal
+data/*.sqlite-shm
+data/backups/
+
+# Generated reports (regenerable from the app)
+exports/
+
+# Historical research run outputs (already imported into the database)
+research/imported/
+
+# Claude Code local tooling config
+.claude/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Logs
+*.log
+.uvicorn*.log
+.uvicorn*.err.log
+
+# OS
+.DS_Store
+Thumbs.db

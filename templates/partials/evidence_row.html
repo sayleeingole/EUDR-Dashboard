@@ -1,0 +1,29 @@
+{% import "_macros.html" as macros %}
+{#- One lean row in the left-hand list. Checkbox is independent of the row
+    click (bulk-select vs open-in-pane are different actions) — the checkbox
+    stops the click from bubbling to the row link. -#}
+<div class="ev-row{% if r.id == selected_id %} selected{% endif %}"
+   id="ev-row-{{ r.id }}"
+   data-id="{{ r.id }}"
+   data-text="{{ (r.claim ~ ' ' ~ r.source_name ~ ' ' ~ (r.notes or ''))|lower }}"
+   data-confidence="{{ r.confidence or '' }}"
+   data-sourcetype="{{ r.source_type or '' }}"
+   data-flag="{{ r.flag or '' }}">
+  <label class="ev-row-check" onclick="event.stopPropagation()">
+    <input type="checkbox" name="ids" value="{{ r.id }}" form="ev-bulk-form" class="ev-row-select">
+  </label>
+  <a class="ev-row-link"
+     href="/evidence?country={{ sel_country.name|urlencode }}&ev={{ r.id }}"
+     hx-get="/evidence/{{ r.id }}/pane?country={{ sel_country.name|urlencode }}"
+     hx-target="#ev-pane" hx-swap="innerHTML"
+     hx-push-url="/evidence?country={{ sel_country.name|urlencode }}&ev={{ r.id }}">
+    <span class="ev-row-claim">{{ r.claim[:140] }}{% if r.claim|length > 140 %}…{% endif %}
+      <span class="muted ev-row-source">{% if r.publisher %}{{ r.publisher }} — {% endif %}{{ r.source_name[:50] }}</span>
+    </span>
+    <span class="ev-row-confidence">{{ macros.rating_chip('', r.confidence) if r.confidence else '' }}</span>
+    <span class="ev-row-flags">
+      {% if r.flag == 'unlisted-source' %}<span class="ev-flag-dot" title="Untrusted source">●</span>{% endif %}
+      {% if r.flag == 'possible-duplicate' %}<span class="ev-flag-dot ev-flag-dup" title="Possible duplicate">●</span>{% endif %}
+    </span>
+  </a>
+</div>

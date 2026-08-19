@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EUDR research batch",
+  "type": "object",
+  "required": ["meta", "evidence"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["country", "cycle", "scope", "run_type"],
+      "properties": {
+        "country": {"type": "string"},
+        "region": {"type": ["string", "null"]},
+        "cycle": {"type": "integer"},
+        "scope": {"type": "array", "items": {"type": "string"}},
+        "run_type": {"enum": ["risk", "legal"]},
+        "generated_at": {"type": "string"},
+        "template_version": {"type": "string"}
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["section", "claim", "source_name", "retrieved"],
+        "properties": {
+          "section": {"type": "string"},
+          "claim": {"type": "string"},
+          "value": {"type": ["string", "null"]},
+          "source_name": {"type": "string"},
+          "publisher": {"type": ["string", "null"]},
+          "url": {"type": ["string", "null"]},
+          "published": {"type": ["string", "null"]},
+          "retrieved": {"type": "string"},
+          "notes": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "narrative_drafts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["section", "text"],
+        "properties": {
+          "section": {"type": "string"},
+          "text": {"type": "string"},
+          "sources": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "no_findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["section", "searched_for"],
+        "properties": {
+          "section": {"type": "string"},
+          "searched_for": {"type": "string"},
+          "where_searched": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}

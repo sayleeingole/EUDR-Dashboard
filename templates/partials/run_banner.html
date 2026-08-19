@@ -1,0 +1,25 @@
+<div id="run-banner"
+     hx-get="/research/status?country={{ scope_country if scope_country is defined else sel_country.name }}&region={{ scope_region if scope_region is defined else (sel_region.name if sel_region else '') }}"
+     hx-trigger="every 5s" hx-swap="outerHTML">
+  {% for r in runs %}
+    {% if r.status == 'running' %}
+      <div class="banner banner-info run-banner-running">⏳ {{ r.country }}{% if r.region %} · {{ r.region }}{% endif %} · {{ r.run_type }} · started {{ r.started }} — researching in the background; keep working.</div>
+    {% elif r.status == 'completed' %}
+      <div class="banner banner-ok">✅ {{ r.country }}{% if r.region %} · {{ r.region }}{% endif %} · {{ r.run_type }} — {{ r.summary.evidence }} records ready for review ({{ r.summary.unlisted }} unlisted-source, {{ r.summary.duplicates }} possible duplicates, {{ r.summary.drafts }} drafts).
+        <form class="inline-form" hx-post="/research/{{ r.id }}/dismiss" hx-target="#run-banner" hx-swap="outerHTML">
+          <input type="hidden" name="country" value="{{ scope_country if scope_country is defined else sel_country.name }}">
+          <input type="hidden" name="region" value="{{ scope_region if scope_region is defined else (sel_region.name if sel_region else '') }}">
+          <button type="submit">Review these →</button>
+        </form>
+      </div>
+    {% else %}
+      <div class="banner banner-error">❌ {{ r.country }}{% if r.region %} · {{ r.region }}{% endif %} · {{ r.run_type }} — {{ r.error }}
+        <form class="inline-form" hx-post="/research/{{ r.id }}/dismiss" hx-target="#run-banner" hx-swap="outerHTML">
+          <input type="hidden" name="country" value="{{ scope_country if scope_country is defined else sel_country.name }}">
+          <input type="hidden" name="region" value="{{ scope_region if scope_region is defined else (sel_region.name if sel_region else '') }}">
+          <button type="submit">Dismiss</button>
+        </form>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>

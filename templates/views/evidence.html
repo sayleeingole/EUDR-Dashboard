@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Evidence — {{ scope_label }}{% endblock %}
+{% block content %}
+{% if not cycle %}
+  <p class="muted">Open a cycle in Settings to start reviewing evidence.</p>
+{% elif not sel_country %}
+  <p class="muted">Add a country in Settings to start reviewing evidence.</p>
+{% else %}
+<div class="wide-content evidence-page">
+
+<div class="ev-head">
+  <h3>Evidence — {{ scope_label }}</h3>
+  {% if not summary.total %}
+    <div class="evq-empty">
+      <h3>No evidence pending</h3>
+      <p class="muted">Run research or <a href="/risk?country={{ sel_country.name }}">add evidence manually</a> from Art. 10 - Risk Assessment.</p>
+    </div>
+  {% else %}
+  <p class="ev-summary">
+    <strong>{{ summary.total }}</strong> pending across <strong>{{ summary.n_sections }}</strong> section(s)
+    {% if summary.unlisted %} · <a href="#" class="ev-summary-link" data-filter-flag="unlisted-source">{{ summary.unlisted }} from an untrusted source</a>{% endif %}
+    {% if summary.low_confidence %} · <a href="#" class="ev-summary-link" data-filter-confidence="low">{{ summary.low_confidence }} low confidence</a>{% endif %}
+    {% if summary.possible_duplicate %} · <a href="#" class="ev-summary-link" data-filter-flag="possible-duplicate">{{ summary.possible_duplicate }} possible duplicate</a>{% endif %}
+  </p>
+  {% endif %}
+</div>
+
+{% if summary.total %}
+<div class="ev-filters" id="evidence-filters">
+  <input type="search" class="ev-filter" data-col="text" placeholder="Search claim, source, notes…" aria-label="Search evidence">
+  <select class="ev-filter" data-col="confidence" aria-label="Filter by confidence">
+    <option value="">Confidence: any</option>
+    <option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+  </select>
+  <select class="ev-filter" data-col="sourcetype" aria-label="Filter by source type">
+    <option value="">Source type: any</option>
+    {% for k, label in SOURCE_TYPE_LABELS.items() %}<option value="{{ k }}">{{ label }}</option>{% endfor %}
+  </select>
+  <select class="ev-filter" data-col="flag" aria-label="Filter by flag">
+    <option value="">Flag: any</option>
+    <option value="unlisted-source">Untrusted source</option>
+    <option value="possible-duplicate">Possible duplicate</option>
+  </select>
+  <span class="muted ev-kbd" title="Keyboard: J next · K previous">J / K to move</span>
+</div>
+
+<form method="post" action="/evidence/approve-selected" id="ev-bulk-form">
+  <input type="hidden" name="next" value="{{ pane.self_url if pane else list_url }}">
+  <div class="ev-bulk-bar">
+    <label><input type="checkbox" id="ev-select-all"> Select all visible</label>
+    <button type="submit" class="btn-approve" id="ev-approve-selected" disabled>Approve selected</button>
+    {% if batch_count > 1 %}
+    <span class="muted">·</span>
+    <button type="submit" form="ev-batch-approve-form" class="btn-link">Approve all {{ batch_count }} unflagged →</button>
+    {% endif %}
+  </div>
+</form>
+<form id="ev-batch-approve-form" method="post" action="/evidence/batch-approve" style="display:none;">
+  <input type="hidden" name="next" value="{{ pane.self_url if pane else list_url }}">
+  <input type="hidden" name="country" value="{{ sel_country.name }}">
+  <input type="hidden" name="region" value="{{ sel_region.name if sel_region else '' }}">
+</form>
+
+<div class="ev-split">
+  <div class="ev-list" id="ev-list">
+    <div class="ev-list-head">
+      <span></span><span>Claim</span><span>Confidence</span><span></span>
+    </div>
+    {% for g in groups %}
+    <details class="ev-group" open data-section="{{ g.code }}">
+      <summary class="ev-group-head">
+        <span class="ev-group-label">{{ g.label }}</span>
+        <span class="muted">{{ g.rows|length }}</span>
+      </summary>
+      {% for r in g.rows %}
+        {% include "partials/evidence_row.html" %}
+      {% endfor %}
+    </details>
+    {% endfor %}
+    <p class="muted" id="ev-filter-empty" style="display:none; padding:var(--sp-3);">No records match these filters.</p>
+  </div>
+
+  <div class="ev-pane-wrap">
+    <div id="ev-pane">
+      {% if pane %}{% include "partials/evidence_pane.html" %}{% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+</div>
+{% endif %}
+
+{% if request.query_params.get('undo') %}
+<div class="toast" id="undo-toast" data-timeout="5000">
+  <span>Approved.</span>
+  <form method="post" action="/evidence/{{ request.query_params.get('undo') }}/undo" class="inline-form">
+    <input type="hidden" name="next" value="/evidence?country={{ sel_country.name if sel_country else '' }}&region={{ sel_region.name if sel_region else '' }}">
+    <button type="submit" id="evq-undo-btn">Undo</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

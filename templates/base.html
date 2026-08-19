@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}EUDR country risk assessment{% endblock %}</title>
+<link rel="stylesheet" href="{{ static_url('app.css') }}">
+<script src="https://unpkg.com/htmx.org@1.9.12" defer></script>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+{% set qs = '?country=' ~ (sel_country.name if sel_country else '') ~ '&region=' ~ (sel_region.name if sel_region else '') %}
+<div class="shell">
+{% if actor %}
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-lines" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+    <div class="sidebar-brand-text">
+      <span class="sidebar-company">KLK OLEO</span>
+      <span class="sidebar-app">EUDR country risk assessment</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <span class="nav-group-label">Assessment</span>
+    <a href="/overview{{ qs }}" class="nav-link {{ 'active' if active_view == 'overview' else '' }}">
+      <span class="nav-link-row">Overview</span>
+    </a>
+    <a href="/legal{{ qs }}" class="nav-link {{ 'active' if active_view == 'legal' else '' }}">
+      <span class="nav-link-row">Art. 9 - Legality</span>
+      {% if legal_total %}<span class="nav-sub">{{ legal_refined }}/{{ legal_total }} refined</span>{% endif %}
+    </a>
+    <a href="/risk{{ qs }}" class="nav-link {{ 'active' if active_view == 'risk' else '' }}">
+      <span class="nav-link-row">Art. 10 - Risk Assessment</span>
+    </a>
+    <a href="/evidence{{ qs }}" class="nav-link {{ 'active' if active_view == 'evidence' else '' }}">
+      <span class="nav-link-row">Evidence{% if pending_count %}<span class="tab-count">{{ pending_count }}</span>{% endif %}</span>
+    </a>
+    <a href="/checklist{{ qs }}" class="nav-link {{ 'active' if active_view == 'checklist' else '' }}">
+      <span class="nav-link-row">Checklist</span>
+    </a>
+
+    <span class="nav-group-label">Admin</span>
+    <a href="/audit" class="nav-link {{ 'active' if active_view == 'audit' else '' }}">Audit</a>
+    <a href="/settings" class="nav-link {{ 'active' if active_view == 'settings' else '' }}">Settings</a>
+  </nav>
+
+  <div class="sidebar-foot">
+    <span class="actor-chip">
+      <span class="avatar">{{ actor[:2] }}</span>
+      <span class="name">{{ actor }}</span>
+    </span>
+    <form method="post" action="/logout" class="inline-form">
+      <button type="submit" class="btn-link">Log out</button>
+    </form>
+  </div>
+</aside>
+{% endif %}
+
+<div class="main-col">
+{% if actor %}
+<header class="topbar">
+  <div class="topbar-left">
+    {% include "partials/scope_bar.html" %}
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-tagline">Excellence in Oleochemicals</span>
+  </div>
+</header>
+
+{% if not cycle %}
+  <div class="banner banner-error" style="margin:12px 24px 0;">No cycle is open. Open one in Settings before assessing.</div>
+{% endif %}
+{% endif %}
+
+<main class="content">
+{% if request.query_params.get('error') %}
+  <div class="banner banner-error">{{ request.query_params.get('error') }}</div>
+{% endif %}
+{% if request.query_params.get('ok') %}
+  <div class="banner banner-ok">{{ request.query_params.get('ok') }}</div>
+{% endif %}
+{% block content %}{% endblock %}
+</main>
+</div>
+</div>
+
+<script src="{{ static_url('app.js') }}"></script>
+{% block extra_script %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Audit trail{% endblock %}
+{% block content %}
+<h3>Audit trail</h3>
+<form method="get" action="/audit" class="scope-select">
+  <label>Country
+    <select name="f_country" onchange="this.form.submit()">
+      <option value="All" {{ 'selected' if f_country == 'All' else '' }}>All</option>
+      {% for n in country_names %}<option value="{{ n }}" {{ 'selected' if f_country == n else '' }}>{{ n }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Event type
+    <select name="f_event" onchange="this.form.submit()">
+      <option value="All" {{ 'selected' if f_event == 'All' else '' }}>All</option>
+      {% for e in events %}<option value="{{ e }}" {{ 'selected' if f_event == e else '' }}>{{ e }}</option>{% endfor %}
+    </select>
+  </label>
+</form>
+
+{% if rows %}
+<div style="overflow-x:auto;">
+<table class="data-table">
+  <thead><tr><th>At</th><th>Actor</th><th>Event</th><th>Entity</th><th>Country</th><th>Section</th><th>Detail</th><th>Reason</th></tr></thead>
+  <tbody>
+    {% for r in rows %}
+    <tr>
+      <td>{{ r.at }}</td>
+      <td>{{ r.actor }}</td>
+      <td>{{ r.event_type }}</td>
+      <td>{{ r.entity }}{% if r.entity_id %}#{{ r.entity_id }}{% endif %}</td>
+      <td>{{ r.country or '' }}</td>
+      <td>{{ r.section_code|code_label }}</td>
+      <td>{{ ((r.after_state or r.before_state) or '')[:120] }}</td>
+      <td>{{ r.reason or '' }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+  <p class="muted">No audit events match the filter.</p>
+{% endif %}
+{% endblock %}

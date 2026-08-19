@@ -1,0 +1,52 @@
+{#
+  Shared "Run research" panel for /risk (Art. 10) and /legal (Art. 9).
+  Caller sets before including: run_type ('risk'|'legal'), items (sections or
+  legal areas — anything with .code/.title), and optionally api_backed (dict
+  of code -> API name, for sections whose numbers come from a public API
+  instead of an LLM call).
+#}
+{% set api_backed = api_backed | default({}) %}
+{% set research_counts = research_counts | default({}) %}
+<details class="panel">
+  <summary>Run research</summary>
+  <div class="stack-form">
+    {% if not claude_ok %}
+      <p class="banner banner-warn">Claude Code CLI not found on PATH — research runs are unavailable. Use the chat fallback and import the batch file below instead.</p>
+    {% endif %}
+    <form method="post" action="/research/start">
+      <input type="hidden" name="next" value="{{ request.url }}">
+      <input type="hidden" name="country" value="{{ sel_country.name }}">
+      <input type="hidden" name="region" value="{{ sel_region.name if sel_region else '' }}">
+      <input type="hidden" name="cycle_year" value="{{ cycle.year }}">
+      <input type="hidden" name="run_type" value="{{ run_type }}">
+      <span class="micro-label">Scope — none checked means all</span>
+      <div class="scope-list">
+        {% for s in items %}
+          <label class="scope-row">
+            <input type="checkbox" name="item_codes" value="{{ s.code }}">
+            <span class="code">{{ s.code }}</span>
+            <span class="title">{{ s.title }}</span>
+            {%- if research_counts.get(s.code) %}
+              <span class="researched-badge" title="{{ research_counts[s.code] }} evidence record{{ 's' if research_counts[s.code] != 1 }} already on file for this section — pending, approved, or rejected.">✓ already researched · {{ research_counts[s.code] }}</span>
+            {%- endif %}
+            {%- if s.code in api_backed %}
+              <span class="api-badge" title="Quantitative facts for this section are pulled automatically from {{ api_backed[s.code] }}'s public API before Claude researches it, so Claude only handles what the API can't.">🔗 {{ api_backed[s.code] }}</span>
+            {%- endif %}
+          </label>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn-primary" style="margin-top:8px;" {{ 'disabled' if not claude_ok else '' }}>Run research</button>
+    </form>
+
+    {% if pending_batches %}
+      <p class="banner banner-info">{{ pending_batches|length }} batch file(s) awaiting import.</p>
+      {% for p in pending_batches %}
+        <form method="post" action="/research/import/{{ p.name }}" class="inline-form">
+          <input type="hidden" name="next" value="{{ request.url }}">
+          <code>{{ p.name }}</code>
+          <button type="submit">Import</button>
+        </form>
+      {% endfor %}
+    {% endif %}
+  </div>
+</details>

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<h3>Settings</h3>
+<p class="muted">Cycle administration and reference data. A few-times-a-year job — kept off the
+  main assessment path on purpose.</p>
+
+<div class="card">
+  <h4>Assessment cycles</h4>
+  <p class="muted">
+    {% for c in all_cycles %}{{ c.year }} ({{ c.status }}){{ ', ' if not loop.last else '' }}{% else %}No cycles yet.{% endfor %}
+  </p>
+
+  <form method="post" action="/cycles/open" class="stack-form">
+    <input type="hidden" name="next" value="/settings">
+    <label>Open new cycle — year
+      <input type="number" name="year" value="{{ next_cycle_year }}" required>
+    </label>
+    <button type="submit" class="btn-primary">Open cycle</button>
+  </form>
+
+  {% if cycle %}
+  <form method="post" action="/cycles/close" class="stack-form" style="margin-top:12px;">
+    <input type="hidden" name="next" value="/settings">
+    <input type="hidden" name="cycle_id" value="{{ cycle.id }}">
+    <p class="muted">Freezes {{ cycle.year }} — signed data stays queryable, no further drafts or signing against it.</p>
+    <button type="submit">Close cycle {{ cycle.year }}</button>
+  </form>
+  {% endif %}
+
+  {% if closed_cycles and cycle %}
+  <form method="post" action="/cycles/rollforward" class="stack-form" style="margin-top:12px;">
+    <input type="hidden" name="next" value="/settings">
+    <input type="hidden" name="to_cycle_id" value="{{ cycle.id }}">
+    <label>Roll forward from
+      <select name="from_cycle_id">
+        {% for c in closed_cycles %}<option value="{{ c.id }}">{{ c.year }}</option>{% endfor %}
+      </select>
+    </label>
+    <button type="submit">Roll forward → {{ cycle.year }}</button>
+  </form>
+  {% endif %}
+
+  {% if all_cycles|length >= 2 %}
+  <form method="get" action="/cycles/delta" class="stack-form" style="margin-top:12px;">
+    <label>Cycle A
+      <select name="a">{% for c in all_cycles %}<option value="{{ c.year }}">{{ c.year }}</option>{% endfor %}</select>
+    </label>
+    <label>Cycle B (newer)
+      <select name="b">{% for c in all_cycles %}<option value="{{ c.year }}">{{ c.year }}</option>{% endfor %}</select>
+    </label>
+    <button type="submit" class="btn-primary">Show delta</button>
+  </form>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h4>Countries &amp; regions</h4>
+  <div class="stack-form">
+    <form method="post" action="/cycles/country" class="subform">
+      <input type="hidden" name="next" value="/settings">
+      <span class="subform-label">Add a country</span>
+      <label>New country name <input type="text" name="name"></label>
+      <label>ISO3 code <input type="text" name="iso3" maxlength="3"></label>
+      <label>Regions <input type="text" name="regions" placeholder="e.g. Sabah, Sarawak, Peninsular Malaysia"></label>
+      <span class="muted" style="font-size:var(--fs-xs);">Optional — separate multiple regions with commas. Leave blank for a country with no regions.</span>
+      <button type="submit" class="btn-primary">Add country</button>
+    </form>
+
+    <div class="subform-divider"></div>
+
+    <form method="post" action="/cycles/region" class="subform">
+      <input type="hidden" name="next" value="/settings">
+      <span class="subform-label">Add a region to an existing country</span>
+      <label>Country
+        <select name="country_id">
+          {% for c in countries %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>New region name <input type="text" name="name"></label>
+      <button type="submit" class="btn-primary">Add region</button>
+    </form>
+  </div>
+</div>
+
+<div class="card">
+  <h4>Trusted sources</h4>
+  <p class="muted">The list of sources research runs already know and trust — add a website your
+    research is missing, or fix one that's saved by article title instead of by website.</p>
+  <a class="btn-primary btn" href="/settings/sources">Manage trusted sources →</a>
+</div>
+{% endblock %}

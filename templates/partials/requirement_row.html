@@ -1,0 +1,25 @@
+{#- One lean row in the left-hand list. Recognise the law, see its status, click
+    (or J/K) to open it in the reading pane. All detail lives in the pane. -#}
+<a class="req-row{% if r.id == selected_id %} selected{% endif %}"
+   id="req-row-{{ r.id }}"
+   href="/legal?country={{ sel_country.name|urlencode }}&req={{ r.id }}"
+   hx-get="/legal/requirement/{{ r.id }}/pane?country={{ sel_country.name|urlencode }}"
+   hx-target="#req-pane" hx-swap="innerHTML"
+   hx-push-url="/legal?country={{ sel_country.name|urlencode }}&req={{ r.id }}"
+   data-id="{{ r.id }}"
+   data-area="{{ r.area_code }}"
+   data-text="{{ ((r.reference_law or '') ~ ' ' ~ (r.explanation or '') ~ ' ' ~ (r.context or '') ~ ' ' ~ (r.authority or '') ~ ' ' ~ (r.docs|join(' ') if r.docs else '') ~ ' ' ~ (r.alt_document or ''))|lower }}"
+   data-applicability="{{ r.applicability or '' }}"
+   data-node="{{ r.supply_chain_node or '' }}"
+   data-mandatory="{{ r.is_mandatory or '' }}"
+   data-relevance="{{ r.relevance }}">
+  <span class="req-row-law">
+    <span class="req-row-law-text" title="{{ r.reference_law or '' }}">{{ r.reference_law or '—' }}</span>
+    {% if r.region_scope %}<span class="muted req-row-region">{{ r.region_scope }}</span>{% endif %}
+  </span>
+  <span class="req-row-desc" title="{{ r.explanation }}">{{ r.explanation }}</span>
+  <span class="req-row-app">{{ (r.applicability or '—')|capitalize }}</span>
+  <span class="req-row-status">
+    <span class="relevance-badge relevance-{{ r.relevance }}">{{ 'to refine' if r.relevance == 'candidate' else r.relevance|replace('_', ' ') }}</span>
+  </span>
+</a>

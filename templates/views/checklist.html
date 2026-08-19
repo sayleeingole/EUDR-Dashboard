@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Checklist — {{ scope_label }}{% endblock %}
+{% block content %}
+{% if not cycle %}
+  <p class="muted">Open a cycle above to start.</p>
+{% elif not sel_country %}
+  <p class="muted">Add a country above to start.</p>
+{% else %}
+<h3>Checklist — {{ scope_label }}</h3>
+
+{% if not is_complete %}
+  <div class="banner banner-warn">Assessment incomplete — a generated checklist will be
+    marked DRAFT. Gaps: {{ gaps[:6]|join('; ') }}{% if gaps|length > 6 %}…{% endif %}</div>
+{% endif %}
+
+<div style="display:flex; justify-content:space-between; align-items:center; gap:var(--sp-3); flex-wrap:wrap;">
+  <form method="post" action="/checklist/generate" style="flex:none;">
+    <input type="hidden" name="next" value="{{ request.url }}">
+    <input type="hidden" name="cycle_id" value="{{ cycle.id }}">
+    <input type="hidden" name="country_id" value="{{ sel_country.id }}">
+    <input type="hidden" name="region_id" value="{{ region_id or '' }}">
+    <input type="hidden" name="region_name" value="{{ sel_region.name if sel_region else '' }}">
+    <button type="submit" class="btn-primary">Generate checklist</button>
+  </form>
+  {% if gen_row %}
+    <span class="{{ 'muted' if not stale else '' }}">
+      {% if stale %}<span class="banner banner-error" style="padding:4px 8px;">Latest generation {{ gen_row.generation_id }} · {{ gen_row.at }} · {{ gen_row.generated_by }} — ⚠️ STALE: ratings or requirements changed since generation. Regenerate.</span>
+      {% else %}Latest generation {{ gen_row.generation_id }} · {{ gen_row.at }} · {{ gen_row.generated_by }}{% endif %}
+    </span>
+  {% endif %}
+</div>
+
+{% macro doc_name_cell(it) %}
+  <td class="doc-name">
+    <div class="doc-name-row">
+      <span class="doc-name-view">{{ it.document_name }}</span>
+      <form method="post" action="/checklist/rename" class="doc-rename-form">
+        <input type="hidden" name="next" value="{{ request.url }}">
+        <input type="hidden" name="country_id" value="{{ sel_country.id }}">
+        <input type="hidden" name="region_id" value="{{ region_id or '' }}">
+        <input type="hidden" name="original_name" value="{{ it.document_name }}">
+        <input type="text" name="new_name" value="{{ it.document_name }}" class="doc-rename-input">
+      </form>
+      {% if it.kind == 'manual' %}
+      <form method="post" action="/checklist/addition/{{ it.addition_id }}/remove" class="doc-exclude-form">
+        <input type="hidden" name="next" value="{{ request.url }}">
+        <button type="submit" class="doc-exclude-btn" title="Remove from checklist"
+                aria-label="Remove {{ it.document_name }} from checklist">&times;</button>
+      </form>
+      {% else %}
+      <form method="post" action="/checklist/exclude" class="doc-exclude-form">
+        <input type="hidden" name="next" value="{{ request.url }}">
+        <input type="hidden" name="country_id" value="{{ sel_country.id }}">
+        <input type="hidden" name="region_id" value="{{ region_id or '' }}">
+        <input type="hidden" name="document_name" value="{{ it.document_name }}">
+        <button type="submit" class="doc-exclude-btn" title="Remove from checklist"
+                aria-label="Remove {{ it.document_name }} from checklist">&times;</button>
+      </form>
+      {% endif %}
+    </div>
+  </td>
+{% endmacro %}
+
+{% macro mandatory_cell(it) %}
+  <td class="col-mandatory">
+    {% if it.is_mandatory == 'yes' %}<span class="reason-tag reason-tag-mandatory-yes">Mandatory</span>
+    {% elif it.is_mandatory == 'conditional' %}<span class="reason-tag reason-tag-mandatory-cond" {% if it.mandatory_condition %}title="{{ it.mandatory_condition }}"{% endif %}>Conditional</span>
+    {% elif it.is_mandatory == 'no' %}<span class="reason-tag reason-tag-mandatory-no">Optional</span>
+    {% else %}<span class="muted">—</span>
+    {% endif %}
+  </td>
+{% endmacro %}
+
+{% macro notes_cell(it) %}
+  <td>
+    {% for j in it._justification %}<div class="reason-line">{{ j }}</div>{% endfor %}
+    {% if it.kind == 'manual' %}
+      <form method="post" action="/checklist/addition/{{ it.addition_id }}/note" class="checklist-note-form">
+    {% else %}
+      <form method="post" action="/checklist/item/{{ it.id }}/notes" class="checklist-note-form">
+    {% endif %}
+      <input type="hidden" name="next" value="{{ request.url }}">
+      <input type="text" name="notes" value="{{ it.notes or '' }}"
+             placeholder="Add a remark, press Enter to save…" class="checklist-note-input">
+      <button type="submit" class="checklist-note-submit" aria-hidden="true" tabindex="-1"></button>
+    </form>
+    {% if it.notes %}<div class="checklist-note-meta">— {{ it.notes_by }}, {{ it.notes_at[:16] | replace('T', ' ') }}</div>{% endif %}
+  </td>
+{% endmacro %}
+
+{% macro justification_cell(it) %}
+  <td>{% for j in it._justification %}<div class="reason-line">{{ j }}</div>{% endfor %}</td>
+{% endmacro %}
+
+{% for grp, rows, doc_count in grouped_items %}
+  <div class="checklist-group-block">
+  <div class="checklist-group-head">
+    <h4 class="checklist-group">{{ grp }} <span class="muted" style="font-weight:400;">· {{ doc_count }} item{{ 's' if doc_count != 1 }}</span></h4>
+    <button type="button" class="checklist-edit-toggle" data-edit-label="Edit" data-done-label="Done">Edit</button>
+  </div>
+
+  <div class="checklist-table-wrap">
+  <table class="checklist-table">
+    <thead>
+      <tr>
+        <th class="col-num">#</th>
+        <th>Document</th>
+        <th class="col-type">Type</th>
+        <th class="col-mandatory">Mandatory</th>
+        <th>Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        {% if row.kind == 'single' %}
+          {% set it = row.docs[0] %}
+          {% set tag = {'legality-baseline': 'baseline', 'risk-addon': 'risk add-on', 'merged': 'baseline + risk add-on', 'manual': 'added by you'}[it.stream] %}
+          <tr>
+            <td class="col-num">{{ loop.index }}</td>
+            {{ doc_name_cell(it) }}
+            <td class="col-type">
+              <span class="reason-tag reason-tag-stream">{{ tag }}</span>
+              {% if it.escalation %}<span class="reason-tag reason-tag-escalation">{{ it.escalation }}</span>{% endif %}
+            </td>
+            {{ mandatory_cell(it) }}
+            {{ notes_cell(it) }}
+          </tr>
+        {% else %}
+          {% set first = row.docs[0] %}
+          {% set tag = {'legality-baseline': 'baseline', 'risk-addon': 'risk add-on', 'merged': 'baseline + risk add-on', 'manual': 'added by you'}[first.stream] %}
+          <tr class="alt-group-header">
+            <td class="col-num">{{ loop.index }}</td>
+            <td class="alt-group-label">Any ONE of the following {{ row.docs|length }} documents satisfies this requirement:</td>
+            <td class="col-type">
+              <span class="reason-tag reason-tag-stream">{{ tag }}</span>
+              {% if first.escalation %}<span class="reason-tag reason-tag-escalation">{{ first.escalation }}</span>{% endif %}
+            </td>
+            {{ mandatory_cell(first) }}
+            {{ notes_cell(first) }}
+          </tr>
+          {% for it in row.docs %}
+            <tr class="alt-group-member">
+              <td class="col-num"></td>
+              {{ doc_name_cell(it) }}
+              <td class="col-type"></td>
+              <td class="col-mandatory"></td>
+              <td></td>
+            </tr>
+            {% if not loop.last %}
+            <tr class="alt-group-or"><td class="col-num"></td><td colspan="4">or</td></tr>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+      <tr class="checklist-add-row">
+        <td class="col-num"></td>
+        <td colspan="4">
+          <form method="post" action="/checklist/add" class="checklist-add-form">
+            <input type="hidden" name="next" value="{{ request.url }}">
+            <input type="hidden" name="country_id" value="{{ sel_country.id }}">
+            <input type="hidden" name="region_id" value="{{ region_id or '' }}">
+            <input type="hidden" name="grouping" value="{{ grp }}">
+            <input type="text" name="document_name" placeholder="Document name" required class="checklist-add-input">
+            <input type="text" name="note" placeholder="Note (optional)" class="checklist-add-input">
+            <button type="submit" class="btn">+ Add a document</button>
+          </form>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  </div>
+{% endfor %}
+
+{% if changes %}
+<details class="checklist-excluded">
+  <summary class="muted">Your changes to this checklist ({{ changes|length }})</summary>
+  <ul class="checklist-excluded-list">
+    {% for c in changes %}
+    <li>
+      <span class="checklist-excluded-name">{{ c.label }}</span>
+      <span class="checklist-note-meta">{{ c.kind }} by {{ c.who }}, {{ c.at[:16] | replace('T', ' ') }}</span>
+      <form method="post" action="{{ c.undo_action }}" class="inline-form">
+        <input type="hidden" name="next" value="{{ request.url }}">
+        <button type="submit" class="btn-link">{{ c.undo_label }}</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+</details>
+{% endif %}
+
+<hr>
+<h3>Exports</h3>
+<p class="muted">Files land in the exports folder with systematic names
+  (KLK_EUDR_&lt;country&gt;_&lt;region&gt;_&lt;cycle&gt;_&lt;type&gt;_&lt;date&gt;) and every
+  export is logged in the audit trail.</p>
+<div style="display:flex; gap:10px; flex-wrap:wrap;">
+  <a href="/checklist/export/risk?country={{ sel_country.name }}&region={{ sel_region.name if sel_region else '' }}"><button type="button">Risk report (docx)</button></a>
+  <a href="/checklist/export/checklist-docx?country={{ sel_country.name }}&region={{ sel_region.name if sel_region else '' }}"><button type="button">Checklist (docx)</button></a>
+  <a href="/checklist/export/checklist-xlsx?country={{ sel_country.name }}&region={{ sel_region.name if sel_region else '' }}"><button type="button">Checklist (xlsx)</button></a>
+  <a href="/checklist/export/checklist-docx-supplier?country={{ sel_country.name }}&region={{ sel_region.name if sel_region else '' }}"><button type="button">Supplier checklist — bare minimum (docx)</button></a>
+  <a href="/checklist/export/audit?country={{ sel_country.name }}"><button type="button">Audit extract (xlsx)</button></a>
+</div>
+
+{% if export_history %}
+<details style="margin-top:12px;">
+  <summary class="muted">Export history</summary>
+  <ul>
+    {% for f in export_history %}<li><a href="/checklist/exports/{{ f }}">{{ f }}</a></li>{% endfor %}
+  </ul>
+</details>
+{% endif %}
+{% endif %}
+{% endblock %}

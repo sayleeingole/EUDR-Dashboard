@@ -1,0 +1,147 @@
+{#- The reading pane for one requirement. Laid out in the order a reviewer
+    thinks: which law → what it says → who it binds → which node → what
+    document that means → who issues it → is it always required (and if not,
+    when) → decide. Candidate = editable form; decided = same layout, read-only,
+    with the decision and a Reopen. -#}
+{% set r = pane.r %}
+{% set is_cand = r.relevance == 'candidate' %}
+{% set nodes = (r.supply_chain_node or '').split(',') %}
+<article class="req-pane" data-id="{{ r.id }}" aria-live="polite">
+
+  <header class="req-pane-head">
+    <div class="req-pane-crumb muted">
+      {{ r.area_code|code_label }} · {{ pane.area_pos }} of {{ pane.area_total }} in this area
+      {% if r.region_scope %} · {{ r.region_scope }}{% endif %}
+      {% if r.req_type %} · <span style="text-transform:capitalize;">{{ r.req_type }}</span>{% if r.parsed %} <span title="Parsed from legacy free text — confirm">~</span>{% endif %}{% endif %}
+      <form method="post" action="/legal/requirement/{{ r.id }}/move-area" class="req-move-form">
+        <input type="hidden" name="next" value="{{ request.url }}">
+        <span class="muted">· filed under wrong area?</span>
+        <select name="area_code" class="req-move-select" title="Move this requirement to a different area"
+                onchange="if(this.value) this.form.requestSubmit();">
+          <option value="">Move to…</option>
+          {% for a in areas if a.code != r.area_code %}
+            <option value="{{ a.code }}">{{ a.code }} · {{ a.title }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+    <div class="req-pane-nav">
+      {% if r.prev_id %}<a class="btn-link" href="/legal?country={{ sel_country.name|urlencode }}&req={{ r.prev_id }}"
+        hx-get="/legal/requirement/{{ r.prev_id }}/pane?country={{ sel_country.name|urlencode }}" hx-target="#req-pane" hx-swap="innerHTML"
+        hx-push-url="/legal?country={{ sel_country.name|urlencode }}&req={{ r.prev_id }}" title="Previous (K)">← Prev</a>{% endif %}
+      {% if r.next_id %}<a class="btn-link" href="/legal?country={{ sel_country.name|urlencode }}&req={{ r.next_id }}"
+        hx-get="/legal/requirement/{{ r.next_id }}/pane?country={{ sel_country.name|urlencode }}" hx-target="#req-pane" hx-swap="innerHTML"
+        hx-push-url="/legal?country={{ sel_country.name|urlencode }}&req={{ r.next_id }}" title="Next (J)">Next →</a>{% endif %}
+    </div>
+  </header>
+
+  {% if is_cand %}
+  <form id="refine-{{ r.id }}" method="post" action="/legal/requirement/{{ r.id }}/refine" class="req-form">
+    <input type="hidden" name="next" value="{{ pane.after_url }}">
+    <input type="hidden" name="self" value="{{ pane.self_url }}">
+
+    <label class="req-field req-field-law">
+      <span class="req-label">Reference law</span>
+      <input type="text" name="reference_law" value="{{ r.reference_law or '' }}" placeholder="e.g. UU 39/2014 art. 42" class="req-law-input">
+    </label>
+  {% else %}
+    <h4 class="req-pane-title">{{ r.reference_law or '—' }}</h4>
+  {% endif %}
+
+  <div class="req-desc">
+    <span class="req-label">What the law says</span>
+    <p>{{ r.explanation }}</p>
+    {% if r.context %}<p class="muted">{{ r.context }}</p>{% endif %}
+  </div>
+
+  {% if is_cand %}
+  <div class="req-grid">
+    <label class="req-field">
+      <span class="req-label">Applies to</span>
+      <select name="applicability">
+        <option value="">— not set —</option>
+        <option value="plantation" {{ 'selected' if r.applicability == 'plantation' }}>Plantation</option>
+        <option value="smallholder" {{ 'selected' if r.applicability == 'smallholder' }}>Smallholder</option>
+        <option value="both" {{ 'selected' if r.applicability == 'both' }}>Both</option>
+      </select>
+    </label>
+
+    <div class="req-field">
+      <span class="req-label">Supply chain node</span>
+      <div class="node-chips">
+        {% for val, label in [('source','Source'), ('mill','Mill'), ('refinery','Refinery'), ('business_partner','Business partner')] %}
+          <label class="node-chip"><input type="checkbox" name="supply_chain_node" value="{{ val }}" {{ 'checked' if val in nodes }}> {{ label }}</label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <label class="req-field req-field-wide">
+      <span class="req-label">Documentation needed <span class="muted">— what a supplier must show, comma-separated</span></span>
+      <input type="text" name="docs" value="{{ r.docs|join(', ') }}" placeholder="e.g. Plantation business licence (IUP-B), land title copy">
+    </label>
+
+    <label class="req-field">
+      <span class="req-label">Issuing authority</span>
+      <input type="text" name="authority" value="{{ r.authority or '' }}" placeholder="Who issues or checks it">
+    </label>
+
+    <label class="req-field">
+      <span class="req-label">Mandatory?</span>
+      <select name="is_mandatory">
+        <option value="">— not set —</option>
+        <option value="yes" {{ 'selected' if r.is_mandatory == 'yes' }}>Yes, always</option>
+        <option value="no" {{ 'selected' if r.is_mandatory == 'no' }}>No</option>
+        <option value="conditional" {{ 'selected' if r.is_mandatory == 'conditional' }}>Conditional</option>
+      </select>
+    </label>
+
+    <label class="req-field req-field-wide req-field-cond">
+      <span class="req-label">Condition <span class="muted">— when does it apply?</span></span>
+      <input type="text" name="mandatory_condition" value="{{ r.mandatory_condition or '' }}" placeholder="e.g. only for plantations above 25 ha">
+    </label>
+
+    <label class="req-field req-field-wide">
+      <span class="req-label">Alternative document <span class="muted">— optional</span></span>
+      <input type="text" name="alt_document" value="{{ r.alt_document or '' }}" placeholder="A substitute the law itself accepts">
+    </label>
+  </div>
+
+  <div class="req-decide">
+    <input type="text" name="reason" placeholder="Notes (optional)" aria-label="Notes">
+    <button type="submit" name="relevance" value="relevant" class="btn-approve">Accept</button>
+    <button type="submit" name="relevance" value="not_relevant" class="btn-reject">Reject</button>
+  </div>
+  </form>
+
+  {% else %}
+  <dl class="req-grid req-grid-read">
+    <div class="req-field"><dt class="req-label">Applies to</dt><dd>{{ (r.applicability or '—')|capitalize }}</dd></div>
+    <div class="req-field"><dt class="req-label">Supply chain node</dt>
+      <dd>{% if r.supply_chain_node %}{{ r.supply_chain_node.split(',')|map('replace', '_', ' ')|map('capitalize')|join(' · ') }}{% else %}—{% endif %}</dd></div>
+    <div class="req-field req-field-wide"><dt class="req-label">Documentation needed</dt>
+      <dd>{% if r.docs %}{{ r.docs|join(' · ') }}{% else %}—{% endif %}</dd></div>
+    <div class="req-field"><dt class="req-label">Issuing authority</dt><dd>{{ r.authority or '—' }}</dd></div>
+    <div class="req-field"><dt class="req-label">Mandatory?</dt><dd>{{ (r.is_mandatory or '—')|capitalize }}</dd></div>
+    {% if r.mandatory_condition %}
+    <div class="req-field req-field-wide"><dt class="req-label">Condition</dt><dd>{{ r.mandatory_condition }}</dd></div>
+    {% endif %}
+    {% if r.alt_document %}
+    <div class="req-field req-field-wide"><dt class="req-label">Alternative document</dt><dd>{{ r.alt_document }}</dd></div>
+    {% endif %}
+  </dl>
+
+  <div class="req-decision">
+    <span class="relevance-badge relevance-{{ r.relevance }}">{{ r.relevance|replace('_', ' ') }}</span>
+    <span class="muted">by {{ r.decided_by }} on {{ r.decided_at[:10] }}{% if r.relevance_reason %} — “{{ r.relevance_reason }}”{% endif %}</span>
+    <details class="req-reopen">
+      <summary class="muted">Reopen for re-decision</summary>
+      <form method="post" action="/legal/requirement/{{ r.id }}/reopen" class="req-decide">
+        <input type="hidden" name="next" value="{{ pane.self_url }}">
+        <input type="text" name="reason" placeholder="Reason to reopen (required)" required aria-label="Reason to reopen">
+        <button type="submit">Reopen</button>
+      </form>
+    </details>
+  </div>
+  {% endif %}
+
+</article>

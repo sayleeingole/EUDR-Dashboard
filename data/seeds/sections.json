@@ -1,0 +1,22 @@
+[
+  {"code": "S1", "article_refs": "10(2)(a)", "title": "Country risk classification", "rating_scale": "benchmark",
+   "min_scope": "Commission benchmarking classification (low/standard/high) under Art. 29 and the due diligence level it triggers. Sources: Reg. (EU) 2023/1115; Impl. Reg. (EU) 2025/1093; Reg. (EU) 2025/2650."},
+  {"code": "S2", "article_refs": "10(2)(b)", "title": "Presence of forests", "rating_scale": "risk",
+   "min_scope": "Forest cover, primary forest, peatland presence in sourcing areas."},
+  {"code": "S3", "article_refs": "10(2)(c),(d),(e)", "title": "Indigenous peoples & customary tenure", "rating_scale": "risk",
+   "min_scope": "Presence of indigenous peoples in production areas; FPIC legal baseline; consultation in good faith; documented claims/unrest; active grievances from credible sources."},
+  {"code": "S4", "article_refs": "10(2)(f),(k)", "title": "Prevalence of deforestation", "rating_scale": "risk",
+   "min_scope": "Tree cover loss trend, state of primary forest, loss in protected areas, agriculture-driven loss, post-2020 trend."},
+  {"code": "S5", "article_refs": "10(2)(g),(h)", "title": "Governance concerns", "rating_scale": "risk",
+   "min_scope": "Corruption (TI CPI), palm sector regulation quality, EU/UN sanctions, civic space (CIVICUS), transparency indices, tracked environmental crimes."},
+  {"code": "S6", "article_refs": "10(2)(i)", "title": "Supply chain complexity", "rating_scale": "risk",
+   "min_scope": "Palm supply chain structure: planted area, mills, refineries, kernel crushers, biodiesel plants; smallholder share; independent vs linked plantations; traceability implications."},
+  {"code": "S7", "article_refs": "10(2)(j)", "title": "Risk of mixing", "rating_scale": "risk",
+   "min_scope": "Entry points for unknown-origin material: dealers/collection points, mill weighbridges, multi-origin refinery blending, bulk port tanks, cross-border flows; certification model limits (MB vs SG/IP). Synthesis section: must reference S4-S6 findings."},
+  {"code": "S8", "article_refs": "10(2)(l)", "title": "Human rights", "rating_scale": "risk",
+   "min_scope": "Labour/human rights law enforcement: forced and child labour listings, import control measures (e.g. CBP WROs), migrant workforce structure, recruitment practices, national action plans."},
+  {"code": "S9", "article_refs": "10(2)(m)", "title": "Substantiated concerns", "rating_scale": "risk",
+   "min_scope": "First-party grievances and coalition submissions alleging non-compliance for palm products from the country/region. Synthesis section: must reference grievance data and quantitative findings."},
+  {"code": "S10", "article_refs": "10(2)(n)", "title": "Certification & third-party schemes", "rating_scale": "support",
+   "min_scope": "Coverage and content of mandatory and voluntary schemes (e.g. MSPO, ISPO, RSPO; MB/SG/IP models) against Art. 9 information requirements. Certification is supportive evidence, never a green lane."}
+]

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Overview — {{ scope_label }}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+{% block content %}
+{% if not cycle %}
+  <p class="muted">Open a cycle in Settings to start assessing.</p>
+{% elif not sel_country %}
+  <p class="muted">Add a country in Settings to start assessing.</p>
+{% else %}
+{% set risk_pct = ((signed_count / total_sections * 100) | round | int) if total_sections else 0 %}
+{% set legal_pct = ((refined_requirements / total_requirements * 100) | round | int) if total_requirements else 0 %}
+{% set pct = ((risk_pct + legal_pct) / 2) | round | int %}
+<h3>{{ scope_label }}</h3>
+<p class="muted">Cycle {{ cycle.year }}</p>
+
+<div class="card accent-left accent-brand">
+  <span class="micro-label">Assessment summary</span>
+  <div class="stat-row">
+    <div class="stat-block">
+      <span class="stat-label">Cycle</span>
+      <span class="stat-value">{{ cycle.year }}</span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">Art. 9 requirements refined</span>
+      <span class="stat-value">{{ refined_requirements }} <small>/ {{ total_requirements }}</small></span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">Art. 10 sections signed</span>
+      <span class="stat-value">{{ signed_count }} <small>/ {{ total_sections }}</small></span>
+    </div>
+    <div class="stat-block">
+      <span class="stat-label">Complete</span>
+      <span class="stat-value">{{ pct }}<small>%</small></span>
+    </div>
+    {% if pending_count is defined %}
+    <div class="stat-block">
+      <span class="stat-label">Pending evidence</span>
+      <span class="stat-value">{{ pending_count }}</span>
+    </div>
+    {% endif %}
+  </div>
+  <div class="progress-bar" style="margin-top:8px;"><div style="width:{{ pct }}%;"></div></div>
+</div>
+
+{% if palm_map %}
+<div class="card">
+  <span class="micro-label">Palm oil producing areas — {{ scope_label }}</span>
+  <div id="palm-map" data-map='{{ palm_map | tojson }}' style="height:320px; border-radius:8px; margin-top:8px;"></div>
+  <p class="muted" style="margin-top:6px; font-size:12px;">Approximate producing regions from public industry sources (MPOB, GAPKI, USDA FAS) — for risk-assessment context, not surveyed plantation boundaries.</p>
+</div>
+{% endif %}
+
+{% if needs %}
+<div class="card">
+  <h4>What needs me now</h4>
+  <div class="needs-list">
+    {% for n in needs %}
+      <a class="needs-item" href="{{ n.href }}">{{ n.label }} <span aria-hidden="true">→</span></a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if gaps %}
+<div class="card accent-left accent-medium">
+  <h4>Blockers to completion</h4>
+  <ul class="muted" style="margin:0; padding-left:18px;">
+    {% for g in gaps %}<li>{{ g }}</li>{% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="card">
+  <span class="micro-label">Art. 10 sections</span>
+  <div class="section-rows">
+    {% for tile in tiles %}
+      {% set tone = macros.tone_of(tile.current.confirmed_rating if tile.current else None, tile.current.status if tile.current else None) %}
+      <a class="section-row accent-{{ tone }}" href="/risk?country={{ sel_country.name }}&region={{ sel_region.name if sel_region else '' }}#section-{{ tile.s.code }}">
+        <span class="code">{{ tile.s.code }}</span>
+        <span class="title">{{ tile.s.title }}</span>
+        {% if tile.current %}
+          {{ macros.rating_pill(tile.current.confirmed_rating, tile.current.status) }}
+        {% else %}
+          {{ macros.rating_pill(None, None) }}
+        {% endif %}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+{% if recent %}
+<div class="card">
+  <h4>Recent activity</h4>
+  {% for r in recent %}
+    <p class="muted">{{ r.at[:16] | replace('T', ' ') }} — {{ r.actor }} {{ r.event_type | replace('_', ' ') }}{% if r.section_code %} ({{ r.section_code|code_label }}){% endif %}</p>
+  {% endfor %}
+  <a href="/audit" class="btn-link">View full audit trail →</a>
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}
+{% block extra_script %}
+{% if palm_map %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+  var el = document.getElementById('palm-map');
+  if (!el || !window.L) return;
+  var data = JSON.parse(el.dataset.map);
+  var map = L.map(el).setView(data.center, data.zoom);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 12,
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  data.areas.forEach(function (a) {
+    L.circleMarker([a.lat, a.lon], {
+      radius: 9, color: '#2f6b3a', fillColor: '#4f9a5c', fillOpacity: 0.75, weight: 2
+    }).addTo(map).bindPopup('<strong>' + a.name + '</strong><br>' + a.note);
+  });
+})();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Trusted sources{% endblock %}
+{% block content %}
+<div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+  <h3>Trusted sources</h3>
+  <a class="btn-link" href="/settings">← Back to Settings</a>
+</div>
+<p class="muted">Research runs are told to use these sources when relevant, but they aren't the only
+  ones allowed — research can and should cite good sources outside this list too. A source with a
+  website domain trusts every future article from that site; a name-only source (usually saved from
+  approving one record) only matches that exact title. {{ n_total }} active.</p>
+
+<div class="card">
+  <h4>Add a source</h4>
+  <form method="post" action="/settings/sources/add" class="stack-form">
+    <input type="hidden" name="next" value="/settings/sources">
+    <label>Name <input type="text" name="name" placeholder="e.g. WALHI"></label>
+    <label>Website domain <span class="muted">— trusts every article from this site, e.g. walhi.or.id</span>
+      <input type="text" name="url_pattern" placeholder="e.g. walhi.or.id"></label>
+    <label>Publisher <span class="muted">(optional)</span> <input type="text" name="publisher"></label>
+    <label>Applies to <span class="muted">— comma-separated section/area codes, or "all"</span>
+      <input type="text" name="applies_to" value="all" placeholder="e.g. S3,S8,S9 or all"></label>
+    <label>Why <span class="muted">(optional, for the record)</span> <input type="text" name="reason"></label>
+    <button type="submit" class="btn-primary">Add to trusted sources</button>
+  </form>
+</div>
+
+{% if candidates %}
+<div class="card">
+  <h4>Sources you might be missing</h4>
+  <p class="muted">Civil-society and academic organisations active in Malaysia/Indonesia palm-sector
+    monitoring, not yet on your trusted list. Add whichever you actually trust — this is a starting
+    point, not a recommendation to accept blindly.</p>
+  {% for c in candidates %}
+  <div class="source-candidate">
+    <div>
+      <strong>{{ c.name }}</strong> <span class="muted">— {{ c.url_pattern }}</span>
+      <p class="muted" style="margin:2px 0 0;">{{ c.why }} <span class="muted">Suggested for: {{ c.applies_to }}</span></p>
+    </div>
+    <form method="post" action="/settings/sources/add" class="inline-form">
+      <input type="hidden" name="next" value="/settings/sources">
+      <input type="hidden" name="name" value="{{ c.name }}">
+      <input type="hidden" name="url_pattern" value="{{ c.url_pattern }}">
+      <input type="hidden" name="publisher" value="{{ c.publisher }}">
+      <input type="hidden" name="applies_to" value="{{ c.applies_to }}">
+      <input type="hidden" name="reason" value="added from suggested list">
+      <button type="submit" class="btn-approve">Add</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if no_domain %}
+<div class="card">
+  <h4>Name-only sources <span class="muted">— {{ no_domain|length }}</span></h4>
+  <p class="muted">These trust one article title, not the website — the next article from the same
+    site will still show as unlisted. Attach a domain to make the trust follow the website.</p>
+  {% for s in no_domain %}
+  <div class="source-row">
+    <div class="source-row-name">{{ s.name }}
+      <span class="muted">{{ s.n_evidence }} record{{ 's' if s.n_evidence != 1 }}{% if s.n_approved %} · {{ s.n_approved }} approved{% endif %}</span>
+    </div>
+    <form method="post" action="/settings/sources/{{ s.id }}/domain" class="inline-form">
+      <input type="hidden" name="next" value="/settings/sources">
+      <input type="text" name="url_pattern" placeholder="website domain, e.g. example.com" required style="width:220px;">
+      <button type="submit">Attach domain</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="card">
+  <h4>All active sources <span class="muted">— {{ active|length }}</span></h4>
+  <div style="overflow-x:auto;">
+  <table class="data-table">
+    <thead><tr><th>Name</th><th>Website</th><th>Applies to</th><th>Evidence</th><th>Added</th><th></th></tr></thead>
+    <tbody>
+      {% for s in active %}
+      <tr>
+        <td>{{ s.name }}{% if s.publisher %}<div class="muted">{{ s.publisher }}</div>{% endif %}</td>
+        <td>{% if s.url_pattern %}{{ s.url_pattern }}{% else %}<span class="muted">— name only</span>{% endif %}</td>
+        <td>{{ s.applies_to }}</td>
+        <td>{{ s.n_evidence }}{% if s.n_approved %} <span class="muted">({{ s.n_approved }} approved)</span>{% endif %}</td>
+        <td class="muted">{{ s.added_by }}, {{ s.added_at[:10] }}</td>
+        <td>
+          <details>
+            <summary class="muted">Retire</summary>
+            <form method="post" action="/settings/sources/{{ s.id }}/retire" class="stack-form" style="margin-top:6px;">
+              <input type="hidden" name="next" value="/settings/sources">
+              <input type="text" name="reason" placeholder="Reason (required)" required>
+              <button type="submit" class="btn-reject">Retire</button>
+            </form>
+          </details>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+
+{% if retired %}
+<div class="card">
+  <h4>Retired <span class="muted">— {{ retired|length }}</span></h4>
+  {% for s in retired %}
+  <div class="source-row">
+    <div class="source-row-name">{{ s.name }} <span class="muted">{{ s.url_pattern or '' }}</span></div>
+    <form method="post" action="/settings/sources/{{ s.id }}/reactivate" class="inline-form">
+      <input type="hidden" name="next" value="/settings/sources">
+      <button type="submit" class="btn-link">Reactivate</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

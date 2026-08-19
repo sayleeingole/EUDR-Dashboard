@@ -1,0 +1,56 @@
+{
+  "meta": {
+    "country": "Indonesia",
+    "region": null,
+    "cycle": 2027,
+    "scope": [
+      "S4"
+    ],
+    "run_type": "risk",
+    "generated_at": "2026-08-18T12:30:06",
+    "template_version": "gfw-fetcher-v1"
+  },
+  "evidence": [
+    {
+      "section": "S4",
+      "claim": "Tree cover loss in Indonesia was 695,000 ha in 2023 (>30% canopy density threshold, UMD/Hansen methodology).",
+      "value": "695,000 ha (2023)",
+      "source_name": "Global Forest Watch — Tree Cover Loss (UMD)",
+      "publisher": "World Resources Institute / University of Maryland",
+      "url": "https://www.globalforestwatch.org/dashboards/country/IDN/",
+      "published": null,
+      "retrieved": "2026-08-18",
+      "confidence": "high",
+      "significance": "high",
+      "notes": "GFW API unavailable at fetch time — used cached figures from GFW's published country dashboards; verify against the live dashboard before relying on this for a signed rating."
+    },
+    {
+      "section": "S4",
+      "claim": "Cumulative tree cover loss in Indonesia, 2018-2023: 5,170,000 ha.",
+      "value": "5,170,000 ha",
+      "source_name": "Global Forest Watch — Tree Cover Loss (UMD)",
+      "publisher": "World Resources Institute / University of Maryland",
+      "url": "https://www.globalforestwatch.org/dashboards/country/IDN/",
+      "published": null,
+      "retrieved": "2026-08-18",
+      "confidence": "high",
+      "significance": "medium",
+      "notes": "GFW API unavailable at fetch time — used cached figures from GFW's published country dashboards; verify against the live dashboard before relying on this for a signed rating."
+    },
+    {
+      "section": "S4",
+      "claim": "Post-2020 tree cover loss trend in Indonesia: annual loss averaged 727,000 ha/yr from 2021 onward vs 996,333 ha/yr in 2018-2020 — 27% down.",
+      "value": "-27%",
+      "source_name": "Global Forest Watch — Tree Cover Loss (UMD)",
+      "publisher": "World Resources Institute / University of Maryland",
+      "url": "https://www.globalforestwatch.org/dashboards/country/IDN/",
+      "published": null,
+      "retrieved": "2026-08-18",
+      "confidence": "high",
+      "significance": "high",
+      "notes": "GFW API unavailable at fetch time — used cached figures from GFW's published country dashboards; verify against the live dashboard before relying on this for a signed rating. Full series: {\"2018\": 1219000, \"2019\": 940000, \"2020\": 830000, \"2021\": 762000, \"2022\": 724000, \"2023\": 695000}"
+    }
+  ],
+  "narrative_drafts": [],
+  "no_findings": []
+}

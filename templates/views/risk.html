@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Art. 10 - Risk Assessment — {{ scope_label }}{% endblock %}
+{% block content %}
+{% if not cycle %}
+  <p class="muted">Open a cycle in Settings to start assessing.</p>
+{% elif not sel_country %}
+  <p class="muted">Add a country in Settings to start assessing.</p>
+{% else %}
+{% set consolidatable = cards|selectattr("approved_n", "gt", 1)|list %}
+<div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+  <h3>{{ scope_label }}</h3>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <span class="muted">Cycle {{ cycle.year }} ·
+      {% if risk_pending_count %}<a href="/evidence?country={{ sel_country.name }}&region={{ sel_region.name if sel_region else '' }}">{{ risk_pending_count }} pending evidence →</a>{% else %}0 pending evidence{% endif %}
+    </span>
+    {% if consolidatable %}
+      <form method="post" action="/risk/consolidate-all" style="margin:0;">
+        <input type="hidden" name="next" value="{{ request.url }}">
+        <input type="hidden" name="cycle_id" value="{{ cycle.id }}">
+        <input type="hidden" name="country_id" value="{{ sel_country.id }}">
+        <input type="hidden" name="region_id" value="{{ region_id or '' }}">
+        <button type="submit" class="btn-primary">Check for duplicates</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+{% include "partials/run_banner.html" %}
+
+{% set run_type = "risk" %}
+{% set items = sections %}
+{% set api_backed = {'S2': 'FAOSTAT', 'S4': 'Global Forest Watch', 'S5': 'World Bank', 'S8': 'ILO'} %}
+{% include "partials/research_panel.html" %}
+
+<details class="panel">
+  <summary>Add evidence manually</summary>
+  <form method="post" action="/risk/evidence" class="stack-form">
+    <input type="hidden" name="next" value="{{ request.url }}">
+    <input type="hidden" name="cycle_id" value="{{ cycle.id }}">
+    <input type="hidden" name="country_id" value="{{ sel_country.id }}">
+    <input type="hidden" name="region_id" value="{{ region_id or '' }}">
+    <label>Section / legal area
+      <select name="section_code">
+        {% for s in sections %}<option value="{{ s.code }}">{{ s.code }} · {{ s.title }}</option>{% endfor %}
+        {% for a in areas %}<option value="{{ a.code }}">{{ a.code }} · {{ a.title }} (legal)</option>{% endfor %}
+      </select>
+    </label>
+    <label>Claim (one factual statement) <textarea name="claim" rows="2"></textarea></label>
+    <label>Value (optional) <input type="text" name="value"></label>
+    <label>Source
+      <select name="source_choice">
+        <option value="__new__">— new/unlisted source —</option>
+        {% for s in sources_list %}<option value="{{ s.id }}">{{ s.name }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>If new/unlisted: source name <input type="text" name="source_free"></label>
+    <label>URL <input type="url" name="url"></label>
+    <label>Publication date <input type="date" name="published"></label>
+    <label>Retrieval date <input type="date" name="retrieved" required></label>
+    <label>Confidence (source reliability)
+      <select name="confidence">
+        <option value="">— not rated —</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </label>
+    <label>Significance (to this section's rating)
+      <select name="significance">
+        <option value="">— not rated —</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </label>
+    <p class="muted">If this is for a legal area (A1–A7):</p>
+    <label>Type
+      <select name="req_type">
+        <option value="">— n/a —</option>
+        <option value="instrument">Instrument</option>
+        <option value="requirement">Requirement</option>
+        <option value="jurisprudence">Jurisprudence</option>
+        <option value="treaty">Treaty</option>
+        <option value="policy">Policy</option>
+      </select>
+    </label>
+    <label>Authority (issuing/administering body) <input type="text" name="authority"></label>
+    <label>Verification document(s), comma-separated <input type="text" name="verification_docs"></label>
+    <label>Notes <input type="text" name="notes"></label>
+    <button type="submit" class="btn-primary">Submit to review</button>
+  </form>
+</details>
+
+{% for card in cards %}
+  {% include "partials/section_card.html" %}
+{% endfor %}
+{% endif %}
+{% endblock %}

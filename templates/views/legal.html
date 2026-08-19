@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block title %}Art. 9 - Legality — {{ scope_label }}{% endblock %}
+{% block content %}
+{% if not cycle %}
+  <p class="muted">Open a cycle in Settings to start.</p>
+{% elif not sel_country %}
+  <p class="muted">Add a country in Settings to start.</p>
+{% else %}
+<div class="wide-content legal-page">
+
+<div class="legal-head">
+  <div>
+    <h3>Art. 9 - Legality — {{ sel_country.name }}</h3>
+    <p class="muted">Approved legal-area evidence becomes candidate requirements; accept or reject
+      each to build the Art. 9(1)(h) legality baseline. New legal-area evidence is reviewed from the
+      <a href="/evidence?country={{ sel_country.name }}">Evidence</a>.</p>
+  </div>
+  <div style="display:flex; align-items:center; gap:var(--sp-4);">
+    <div class="stat-row legal-stats">
+      <div class="stat-block"><span class="stat-label">Total</span><span class="stat-value">{{ n_total }}</span></div>
+      <div class="stat-block"><span class="stat-label">To refine</span><span class="stat-value">{{ n_cand }}</span></div>
+      <div class="stat-block"><span class="stat-label">Relevant</span><span class="stat-value">{{ n_rel }}</span></div>
+    </div>
+    {% if consolidatable %}
+      <form method="post" action="/legal/consolidate-all" style="margin:0;">
+        <input type="hidden" name="next" value="{{ request.url }}">
+        <input type="hidden" name="cycle_id" value="{{ cycle.id }}">
+        <input type="hidden" name="country_id" value="{{ sel_country.id }}">
+        <input type="hidden" name="region_id" value="{{ region_id or '' }}">
+        <button type="submit" class="btn-primary">Check for duplicates</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+
+{% include "partials/run_banner.html" %}
+
+{% set run_type = "legal" %}
+{% set items = areas %}
+{% include "partials/research_panel.html" %}
+
+{% if groups %}
+
+<div class="legal-filters" id="legal-filters">
+  <input type="search" class="req-filter" data-col="text" placeholder="Search law, description, authority, document…" aria-label="Search requirements">
+  <select class="req-filter" data-col="area" aria-label="Filter by area">
+    <option value="">All areas</option>
+    {% for a in areas %}<option value="{{ a.code }}">{{ a.code }} · {{ a.title }}</option>{% endfor %}
+  </select>
+  <select class="req-filter" data-col="applicability" aria-label="Filter by applicability">
+    <option value="">Applies to: any</option>
+    <option value="plantation">Plantation</option>
+    <option value="smallholder">Smallholder</option>
+    <option value="both">Both</option>
+  </select>
+  <select class="req-filter" data-col="node" aria-label="Filter by supply chain node">
+    <option value="">Node: any</option>
+    <option value="business_partner">Business partner</option>
+    <option value="mill">Mill</option>
+    <option value="refinery">Refinery</option>
+    <option value="source">Source</option>
+  </select>
+  <select class="req-filter" data-col="mandatory" aria-label="Filter by mandatory">
+    <option value="">Mandatory: any</option>
+    <option value="yes">Yes</option>
+    <option value="no">No</option>
+    <option value="conditional">Conditional</option>
+  </select>
+  <select class="req-filter" data-col="relevance" aria-label="Filter by status">
+    <option value="">Status: any</option>
+    <option value="candidate">To refine</option>
+    <option value="relevant">Relevant</option>
+    <option value="not_relevant">Not relevant</option>
+  </select>
+  <span class="muted legal-kbd" title="Keyboard: J next · K previous">J / K to move</span>
+</div>
+
+<div class="legal-split">
+
+  <div class="req-list" id="req-list" data-country="{{ sel_country.name }}">
+    <div class="req-list-head">
+      <span>Reference law</span><span>Description</span><span>Applies to</span><span>Status</span>
+    </div>
+    {% for g in groups %}
+    <details class="req-group" open data-area="{{ g.code }}">
+      <summary class="req-group-head">
+        <span class="req-group-code">{{ g.code }}</span>
+        <span class="req-group-title">{{ g.title }}</span>
+        <span class="req-group-counts muted">
+          {{ g.rows|length }} · {{ g.n_cand }} to refine · {{ g.n_rel }} relevant
+        </span>
+      </summary>
+      {% for r in g.rows %}
+        {% include "partials/requirement_row.html" %}
+      {% endfor %}
+    </details>
+    {% endfor %}
+    <p class="muted" id="filter-empty" style="display:none; padding:var(--sp-3);">No requirements match these filters.</p>
+  </div>
+
+  <div class="req-pane-wrap">
+    <div id="req-pane">
+      {% if pane %}{% include "partials/requirement_pane.html" %}{% endif %}
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+{% if n_rel %}
+  <div class="card" style="margin-top:16px;">
+    <h4>Legality baseline preview</h4>
+    <p class="muted">Documents a supplier must be able to produce, from every requirement marked relevant.</p>
+    {% for doc, refs in baseline %}
+      <p>- <strong>{{ doc }}</strong> <span class="muted">— from {{ refs|join(', ') }}</span></p>
+    {% endfor %}
+  </div>
+{% endif %}
+</div>
+{% endif %}
+{% endblock %}

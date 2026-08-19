@@ -1,0 +1,18 @@
+<form method="get" action="{{ request.url.path }}" class="scope-switcher">
+  <select name="country" onchange="this.form.submit()" aria-label="Producing country">
+    {% for c in countries %}
+    <option value="{{ c.name }}" {{ 'selected' if sel_country and c.id==sel_country.id else '' }}>{{ c.name }}</option>
+    {% endfor %}
+  </select>
+  <select name="region" onchange="this.form.submit()" aria-label="Assessment level">
+    <option value="">Country level</option>
+    {% for r in regions %}
+    <option value="{{ r.name }}" {{ 'selected' if sel_region and r.id==sel_region.id else '' }}>{{ r.name }}</option>
+    {% endfor %}
+  </select>
+</form>
+{% if cycle %}
+  <span class="cycle-chip"><span class="dot"></span>Cycle {{ cycle.year }} open</span>
+{% else %}
+  <span class="cycle-chip closed"><span class="dot"></span>No cycle open</span>
+{% endif %}

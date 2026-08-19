@@ -1,0 +1,45 @@
+{% macro suggested_block(code, suggested, trace, section_rules, approved_n=0) %}
+<div id="suggested-{{ code }}" class="muted">
+  {% if section_rules %}
+    {% if suggested %}
+      Suggested: <strong>{{ suggested }}</strong>
+    {% elif approved_n > 0 %}
+      <span class="banner banner-warn" style="display:inline;">⚠ Not yet assessed — tick the applicable conditions above.</span>
+    {% else %}
+      Suggested: <strong>— insufficient basis</strong>
+    {% endif %}
+  {% endif %}
+  <input type="hidden" name="suggested_rating" value="{{ suggested or '' }}">
+  <input type="hidden" name="rule_trace" value="{{ trace }}">
+</div>
+{% endmacro %}
+
+{% macro rating_chip(label, value) %}
+  {% set prefix = (label ~ ': ') if label else '' %}
+  {% if value %}
+    <span class="pill pill-{{ value }}" style="padding:2px 8px; font-size:11px;"><span class="shape"></span>{{ prefix }}{{ value|capitalize }}</span>
+  {% else %}
+    <span class="pill pill-unsigned" style="padding:2px 8px; font-size:11px;">{{ prefix }}—</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro dot_scale(tone) %}
+  <span class="dot-scale scale-{{ tone }}" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+{% endmacro %}
+
+{% macro rating_pill(rating, status) %}
+  <span class="rating-cell">
+  {% if status == 'to_reverify' %}
+    <span class="pill pill-reverify"><span class="shape"></span>{{ rating|capitalize if rating else '—' }} · to reverify</span>
+    {{ dot_scale('reverify') }}
+  {% elif status == 'signed' and rating %}
+    {% set tone = RATING_TONE.get(rating, 'medium') %}
+    <span class="pill pill-{{ tone }}"><span class="shape"></span>{{ rating|capitalize }}</span>
+    {{ dot_scale(tone) }}
+  {% else %}
+    <span class="pill pill-unsigned"><span class="shape"></span>Not signed</span>
+  {% endif %}
+  </span>
+{% endmacro %}
+
+{% macro tone_of(rating, status) %}{% if status == 'to_reverify' %}reverify{% elif status == 'signed' and rating %}{{ RATING_TONE.get(rating, 'medium') }}{% else %}none{% endif %}{% endmacro %}

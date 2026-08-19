@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Year-over-year delta{% endblock %}
+{% block content %}
+<h3>Year-over-year delta — {{ year_a }} → {{ year_b }}</h3>
+{% set changed = delta_rows|rejectattr("change", "equalto", "same")|list %}
+{% if not changed %}
+  <p class="muted">No comparable assessments in either cycle.</p>
+{% endif %}
+{% for d in changed %}
+  <p>
+    {% if d.change == 'new' %}🆕 {{ d.country }}{% if d.region %} — {{ d.region }}{% endif %} · {{ d.section_code|code_label }}:
+      <strong>{{ d.curr_rating }}</strong>
+    {% elif d.change == 'dropped' %}⬜ {{ d.country }}{% if d.region %} — {{ d.region }}{% endif %} · {{ d.section_code|code_label }}:
+      dropped (was <strong>{{ d.prev_rating }}</strong>)
+    {% else %}🔁 {{ d.country }}{% if d.region %} — {{ d.region }}{% endif %} · {{ d.section_code|code_label }}:
+      <strong>{{ d.prev_rating }}</strong> → <strong>{{ d.curr_rating }}</strong>
+    {% endif %}
+  </p>
+{% endfor %}
+<p><a href="/risk">← Back to risk assessment</a></p>
+{% endblock %}

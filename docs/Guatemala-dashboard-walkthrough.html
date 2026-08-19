@@ -1,0 +1,815 @@
+<title>Guatemala, Start to Sign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#F2F3EC;
+  --paper-raised:#FBFBF7;
+  --ink:#1B2A22;
+  --ink-soft:#4B5A50;
+  --accent:#2F6B4F;
+  --accent-strong:#1E4E38;
+  --accent-soft:#DCE8DE;
+  --line:#CBD0C0;
+  --line-soft:#DEE2D5;
+  --amber:#9C6B22;
+  --amber-soft:#F1E4CC;
+  --shadow: 0 1px 2px rgba(27,42,34,0.06), 0 8px 24px rgba(27,42,34,0.05);
+}
+
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#151C17;
+    --paper-raised:#1D251F;
+    --ink:#EBEFE9;
+    --ink-soft:#A9B4A9;
+    --accent:#6FBE97;
+    --accent-strong:#8FD3AE;
+    --accent-soft:#25352A;
+    --line:#33402F;
+    --line-soft:#2A3527;
+    --amber:#D9A75C;
+    --amber-soft:#332812;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#151C17;
+  --paper-raised:#1D251F;
+  --ink:#EBEFE9;
+  --ink-soft:#A9B4A9;
+  --accent:#6FBE97;
+  --accent-strong:#8FD3AE;
+  --accent-soft:#25352A;
+  --line:#33402F;
+  --line-soft:#2A3527;
+  --amber:#D9A75C;
+  --amber-soft:#332812;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.35);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  max-width:100%;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{
+  font-family:"Source Serif 4", Georgia, "Times New Roman", serif;
+  color:var(--ink);
+  text-wrap:balance;
+  margin:0;
+}
+code, .mono{
+  font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+}
+a{color:var(--accent-strong);}
+
+.page{
+  max-width:820px;
+  margin:0 auto;
+  padding:64px 28px 96px;
+}
+
+/* ---------- Cover ---------- */
+.cover{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  margin-bottom:56px;
+}
+.eyebrow{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:12px;
+  letter-spacing:0.11em;
+  text-transform:uppercase;
+  color:var(--accent-strong);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.eyebrow::before{
+  content:"";
+  width:22px;
+  height:1px;
+  background:var(--accent);
+}
+.cover h1{
+  font-size:clamp(34px, 5.5vw, 52px);
+  font-weight:600;
+  line-height:1.08;
+  letter-spacing:-0.01em;
+}
+.cover .lede{
+  font-size:17px;
+  color:var(--ink-soft);
+  max-width:56ch;
+}
+.cover .lede strong{color:var(--ink); font-weight:600;}
+
+/* ---------- Route map ---------- */
+.routemap{
+  margin-top:8px;
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:20px 22px;
+  box-shadow:var(--shadow);
+}
+.routemap-label{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:11px;
+  letter-spacing:0.09em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin-bottom:14px;
+  display:block;
+}
+.routemap-row{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px;
+  font-size:14px;
+}
+.rm-stop{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:12.5px;
+  padding:5px 11px;
+  border-radius:20px;
+  background:var(--accent-soft);
+  color:var(--accent-strong);
+  white-space:nowrap;
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:background 0.15s ease, transform 0.1s ease;
+}
+button.rm-stop{font:inherit;}
+.rm-stop:hover{background:var(--accent); color:var(--paper-raised);}
+.rm-stop:active{transform:scale(0.97);}
+.rm-stop:focus-visible{outline:2px solid var(--accent-strong); outline-offset:2px;}
+.rm-stop.evidence{
+  background:transparent;
+  border:1px dashed var(--line);
+  color:var(--ink-soft);
+}
+.rm-stop.evidence:hover{background:var(--amber-soft); border-color:var(--amber); color:var(--amber);}
+.rm-arrow{color:var(--line); font-size:13px;}
+.rm-loop{
+  font-size:11px;
+  color:var(--amber);
+  font-family:"IBM Plex Mono", monospace;
+  white-space:nowrap;
+}
+.routemap-note{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--line-soft);
+  font-size:13.5px;
+  color:var(--ink-soft);
+}
+
+/* ---------- Quick nav ---------- */
+.quicknav{
+  position:sticky;
+  top:0;
+  z-index:10;
+  margin:0 -28px 44px;
+  padding:10px 28px;
+  background:color-mix(in srgb, var(--paper) 92%, transparent);
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  overflow-x:auto;
+  scrollbar-width:thin;
+}
+.quicknav-label{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:10.5px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  white-space:nowrap;
+  margin-right:2px;
+}
+.qn-chip{
+  flex:none;
+  width:26px;
+  height:26px;
+  border-radius:50%;
+  border:1px solid var(--line);
+  background:var(--paper-raised);
+  color:var(--ink-soft);
+  font-family:"IBM Plex Mono", monospace;
+  font-size:11.5px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.qn-chip:hover{border-color:var(--accent); color:var(--accent-strong);}
+.qn-chip:focus-visible{outline:2px solid var(--accent-strong); outline-offset:2px;}
+.qn-chip.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--paper-raised);
+  font-weight:600;
+}
+
+/* ---------- Back to top ---------- */
+.back-top{
+  position:fixed;
+  right:24px;
+  bottom:24px;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:var(--accent);
+  color:var(--paper-raised);
+  border:none;
+  font-size:18px;
+  cursor:pointer;
+  box-shadow:var(--shadow);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  transform:translateY(8px);
+  pointer-events:none;
+  transition:opacity 0.2s ease, transform 0.2s ease;
+  z-index:20;
+}
+.back-top.visible{opacity:1; transform:translateY(0); pointer-events:auto;}
+.back-top:hover{background:var(--accent-strong);}
+.back-top:focus-visible{outline:2px solid var(--ink); outline-offset:2px;}
+
+/* ---------- Timeline ---------- */
+.timeline{
+  position:relative;
+  margin-top:52px;
+  scroll-margin-top:70px;
+}
+.stage{scroll-margin-top:76px;}
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:27px;
+  top:8px;
+  bottom:8px;
+  width:1px;
+  background:var(--line);
+}
+.stage{
+  position:relative;
+  padding-left:64px;
+  margin-bottom:8px;
+}
+.stage + .stage{margin-top:44px;}
+.stage-num{
+  position:absolute;
+  left:0;
+  top:0;
+  width:54px;
+  height:54px;
+  border-radius:50%;
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:"IBM Plex Mono", monospace;
+  font-size:15px;
+  color:var(--ink-soft);
+  z-index:1;
+}
+.stage.milestone .stage-num{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--paper-raised);
+  font-weight:600;
+}
+.stage-tab{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-family:"IBM Plex Mono", monospace;
+  font-size:11px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--accent-strong);
+  background:var(--accent-soft);
+  padding:4px 10px;
+  border-radius:5px;
+  margin-bottom:10px;
+}
+.stage h3{
+  font-size:21px;
+  font-weight:600;
+  margin-bottom:4px;
+}
+.stage .stage-sub{
+  color:var(--ink-soft);
+  font-size:14px;
+  margin-bottom:16px;
+}
+.stage-body{
+  background:var(--paper-raised);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:20px 22px;
+  box-shadow:var(--shadow);
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.beat{
+  display:grid;
+  grid-template-columns:84px 1fr;
+  gap:14px;
+  font-size:14.5px;
+  align-items:start;
+}
+.beat-label{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:11px;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  padding-top:2px;
+}
+.beat-text{color:var(--ink);}
+.beat-text .click{
+  font-family:"IBM Plex Mono", monospace;
+  font-size:13px;
+  background:var(--accent-soft);
+  color:var(--accent-strong);
+  padding:1px 6px;
+  border-radius:4px;
+}
+.beat-text ul{margin:6px 0 0; padding-left:18px;}
+.beat-text li{margin-bottom:4px;}
+.produces{
+  border-top:1px solid var(--line-soft);
+  margin-top:2px;
+  padding-top:14px;
+  display:grid;
+  grid-template-columns:84px 1fr;
+  gap:14px;
+  font-size:14.5px;
+}
+.produces .beat-label{color:var(--accent-strong);}
+.produces .beat-text{font-weight:500;}
+.aside{
+  margin-top:2px;
+  font-size:13px;
+  color:var(--ink-soft);
+  border-left:2px solid var(--amber);
+  padding:8px 12px;
+  background:var(--amber-soft);
+  border-radius:0 6px 6px 0;
+}
+.aside strong{color:var(--ink);}
+
+/* ---------- Milestone divider ---------- */
+.milestone-body{
+  background:linear-gradient(135deg, var(--accent-soft), transparent);
+  border:1px solid var(--accent);
+}
+
+/* ---------- Closing ---------- */
+.closing{
+  margin-top:64px;
+  padding-top:36px;
+  border-top:1px solid var(--line);
+}
+.closing h2{
+  font-size:22px;
+  margin-bottom:12px;
+}
+.closing p{
+  color:var(--ink-soft);
+  font-size:14.5px;
+  max-width:62ch;
+  margin:0 0 10px;
+}
+.closing p strong{color:var(--ink);}
+
+@media (max-width: 600px){
+  .page{padding:40px 16px 72px;}
+  .stage{padding-left:52px;}
+  .stage-num{width:42px;height:42px;font-size:13px;left:0;}
+  .timeline::before{left:20px;}
+  .beat, .produces{grid-template-columns:1fr; gap:4px;}
+  .quicknav{margin:0 -16px 32px; padding:10px 16px;}
+  .back-top{right:16px; bottom:16px; width:40px; height:40px;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  .rm-stop, .qn-chip, .back-top{transition:none;}
+}
+</style>
+
+<div class="page">
+
+  <div class="cover">
+    <span class="eyebrow">User story — one assessment, start to sign</span>
+    <h1>Guatemala, Start to Sign</h1>
+    <p class="lede">A walk through every click of taking a new country — Guatemala, as an example —
+      from an empty scope to a signed Article 10 risk assessment, an Article 9 legality baseline,
+      and an exported checklist. <strong>Nothing here is hypothetical</strong> — every screen, button
+      and label below is what the dashboard actually shows today.</p>
+    <div class="routemap">
+      <span class="routemap-label">Where the click-path actually goes — click a stop to jump there</span>
+      <div class="routemap-row">
+        <button type="button" class="rm-stop" data-target="stage-2">Settings</button><span class="rm-arrow">→</span>
+        <button type="button" class="rm-stop" data-target="stage-5">Overview</button><span class="rm-arrow">→</span>
+        <button type="button" class="rm-stop" data-target="stage-6">Art. 9 · Legality</button><span class="rm-arrow">⇄</span>
+        <button type="button" class="rm-stop evidence" data-target="stage-7">Evidence</button><span class="rm-arrow">⇄</span>
+        <button type="button" class="rm-stop" data-target="stage-9">Art. 10 · Risk</button><span class="rm-arrow">⇄</span>
+        <button type="button" class="rm-stop evidence" data-target="stage-10">Evidence</button><span class="rm-arrow">→</span>
+        <button type="button" class="rm-stop" data-target="stage-13">Checklist</button>
+      </div>
+      <p class="routemap-note">The two dashed stops are the <strong>same Evidence tab</strong>, visited
+        twice — every finding a research run makes, for either article, lands there first. You approve
+        it there, then go back to Legal or Risk to see it turn into a requirement or a rating. That
+        round trip is the back-and-forth you flagged — the map above is what it looks like laid flat.</p>
+    </div>
+  </div>
+
+  <nav class="quicknav" id="quicknav" aria-label="Jump to stage">
+    <span class="quicknav-label">Jump to</span>
+    <button type="button" class="qn-chip" data-target="stage-1" title="1 · Sign in">1</button>
+    <button type="button" class="qn-chip" data-target="stage-2" title="2 · Open the cycle">2</button>
+    <button type="button" class="qn-chip" data-target="stage-3" title="3 · Add Guatemala">3</button>
+    <button type="button" class="qn-chip" data-target="stage-4" title="4 · Switch scope">4</button>
+    <button type="button" class="qn-chip" data-target="stage-5" title="5 · Overview">5</button>
+    <button type="button" class="qn-chip" data-target="stage-6" title="6 · Run legal research">6</button>
+    <button type="button" class="qn-chip" data-target="stage-7" title="7 · Review legal findings">7</button>
+    <button type="button" class="qn-chip" data-target="stage-8" title="8 · Refine requirements">8</button>
+    <button type="button" class="qn-chip" data-target="stage-9" title="9 · Run risk research">9</button>
+    <button type="button" class="qn-chip" data-target="stage-10" title="10 · Review risk findings">10</button>
+    <button type="button" class="qn-chip" data-target="stage-11" title="11 · Assess &amp; sign a section">11</button>
+    <button type="button" class="qn-chip" data-target="stage-12" title="12 · Repeat for other sections">12</button>
+    <button type="button" class="qn-chip" data-target="stage-13" title="13 · Generate checklist">13</button>
+    <button type="button" class="qn-chip" data-target="stage-14" title="14 · Export">14</button>
+    <button type="button" class="qn-chip" data-target="stage-15" title="15 · Back to Overview">15</button>
+  </nav>
+
+  <div class="timeline">
+
+    <div class="stage" id="stage-1">
+      <div class="stage-num">1</div>
+      <span class="stage-tab">Login</span>
+      <h3>Sign in</h3>
+      <p class="stage-sub">Every decision you make from here on is stamped with this name.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">"EUDR country risk assessment · KLK Emmerich GmbH" and one field, <em>Your name</em>.</span>
+        </div>
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Type your name → <span class="click">Sign in</span>.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">A signed-in session. This name is what shows up next to every approval, rejection, sign-off and export from here on — it's how the audit trail knows who did what.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-2">
+      <div class="stage-num">2</div>
+      <span class="stage-tab">Settings</span>
+      <h3>Open the assessment cycle</h3>
+      <p class="stage-sub">Skip this if a cycle is already open — the top bar will say so.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">A card titled <em>Assessment cycles</em>, listing any existing cycles and their status.</span>
+        </div>
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Enter a year → <span class="click">Open cycle</span>.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">An open cycle. Nothing can be drafted or signed against a country until one exists — every other screen checks for this first.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-3">
+      <div class="stage-num">3</div>
+      <span class="stage-tab">Settings</span>
+      <h3>Add Guatemala</h3>
+      <p class="stage-sub">Still on Settings, one card down.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">A card titled <em>Countries &amp; regions</em>, with fields for name and ISO3 code.</span>
+        </div>
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Type <span class="click">Guatemala</span>, ISO3 <span class="click">GTM</span> → <span class="click">Add country</span>. (If you assess by plantation region rather than the whole country, the form below it adds a region under Guatemala the same way.)</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">Guatemala now appears in the country switcher at the top of every page — country-level by default, empty of any evidence or ratings.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-4">
+      <div class="stage-num">4</div>
+      <span class="stage-tab">Any page</span>
+      <h3>Switch scope to Guatemala</h3>
+      <p class="stage-sub">This dropdown sits in the header of every screen — it's what "scope" means throughout the app.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Top-right of the header, the country dropdown → select <span class="click">Guatemala</span>. Leave the region dropdown on <em>Country level</em>.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">Every page you visit from now on — Overview, Art. 9, Evidence, Art. 10, Checklist — is scoped to Guatemala + this cycle until you change the dropdown again.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-5">
+      <div class="stage-num">5</div>
+      <span class="stage-tab">Overview</span>
+      <h3>Land on the empty Overview</h3>
+      <p class="stage-sub">This is the default landing page — where "Overview" in the sidebar always takes you.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">
+            <ul>
+              <li>Art. 9 requirements refined: <strong>0 / 0</strong> · Art. 10 sections signed: <strong>0 / 10</strong> · Complete: <strong>0%</strong></li>
+              <li>A <em>Blockers to completion</em> card — right now it just says there's no evidence yet</li>
+              <li>Ten section rows under <em>Art. 10 sections</em>, each pilled "Not signed"</li>
+            </ul>
+          </span>
+        </div>
+        <div class="aside">This page is worth remembering as your <strong>home base</strong>: once real work is underway, its "What needs me now" card links straight to whatever's next — you don't have to remember which of the five tabs to open.</div>
+      </div>
+    </div>
+
+    <div class="stage milestone" id="stage-6">
+      <div class="stage-num">6</div>
+      <span class="stage-tab">Art. 9 · Legality</span>
+      <h3>Run legal research</h3>
+      <p class="stage-sub">This is where Article 9 actually starts — with a research run, not a blank form.</p>
+      <div class="stage-body milestone-body">
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Open <span class="click">Art. 9 · Legality</span> in the sidebar → expand <span class="click">Run research</span> → tick the legal areas to cover (A1–A7 — leave all unchecked to run every area) → <span class="click">Run research</span>.</span>
+        </div>
+        <div class="beat">
+          <span class="beat-label">You wait</span>
+          <span class="beat-text">The run happens in the background — a banner at the top of the page tracks progress. It's calling Claude to research each legal area against Guatemalan law, so a full run across all seven areas takes a few minutes.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">Nothing on this page yet — every finding lands as a pending record in the <strong>Evidence</strong> tab, not here. That's the handoff the route map above shows.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-7">
+      <div class="stage-num">7</div>
+      <span class="stage-tab">Evidence</span>
+      <h3>Review the legal findings</h3>
+      <p class="stage-sub">One record at a time, in a two-pane reading view.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">A left-hand list grouped by legal area (A1, A2, A3…), each group showing its count. A summary line up top: "N pending across M areas." Click any row and the right-hand pane fills with that record — the claim, its source, confidence, and a link to read the source itself.</span>
+        </div>
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Per record: <span class="click">Approve</span>, or one of the quick reject-reason buttons. Press <span class="click">J</span> / <span class="click">K</span> to move to the next / previous record without touching the mouse. If a source isn't yet on your trusted list, the pane asks you to name a reason and choose whether you're trusting the whole website or just this one article.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">Every record you approve becomes a <em>candidate requirement</em> — it moves out of Evidence and reappears back on Art. 9 · Legality, in that area's group, waiting to be refined.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-8">
+      <div class="stage-num">8</div>
+      <span class="stage-tab">Art. 9 · Legality</span>
+      <h3>Refine each candidate requirement</h3>
+      <p class="stage-sub">Back on Art. 9 — the approvals from step 7 are now sitting here as rows to decide.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">The same left-list-plus-reading-pane layout as Evidence. Header counters — <em>Total</em>, <em>To refine</em>, <em>Relevant</em> — track your progress across all seven areas.</span>
+        </div>
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Click a row → in the pane, fill in what the law text doesn't already answer: <em>Applies to</em> (plantation / smallholder / both), <em>Supply chain node</em> (chip checkboxes — source, mill, refinery, business partner), <em>Documentation needed</em>, <em>Issuing authority</em>, <em>Mandatory?</em> (yes / no / conditional), and — only if conditional — <em>Condition</em>. Then <span class="click">Accept</span> or <span class="click">Reject</span>. Accepting jumps you straight to the next candidate; <span class="click">J</span> / <span class="click">K</span> also work here.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">Once every candidate in an area is decided, <em>To refine</em> for Guatemala hits 0 and a <em>Legality baseline preview</em> card appears at the bottom of the page — the actual list of documents a Guatemalan supplier must be able to produce, grouped by which law demands each one.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage milestone" id="stage-9">
+      <div class="stage-num">9</div>
+      <span class="stage-tab">Art. 10 · Risk</span>
+      <h3>Run risk research</h3>
+      <p class="stage-sub">Same move as step 6, one tab over.</p>
+      <div class="stage-body milestone-body">
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Open <span class="click">Art. 10 · Risk Assessment</span> → expand <span class="click">Run research</span> → tick which of the ten sections to run (S1–S10 — deforestation, governance, labour rights, and so on; leave blank for all) → <span class="click">Run research</span>.</span>
+        </div>
+        <div class="aside">A few sections — forest cover, governance indicators, labour statistics — pull hard numbers directly from public APIs (FAOSTAT, Global Forest Watch, World Bank, ILO) before Claude researches the rest. You'll see a small 🔗 badge on those sections in the scope list.</div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">Same handoff as before — findings go to Evidence, not to this page.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-10">
+      <div class="stage-num">10</div>
+      <span class="stage-tab">Evidence</span>
+      <h3>Review the risk findings</h3>
+      <p class="stage-sub">Same screen as step 7 — now grouped by S1 through S10 instead of A1 through A7.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Work down the list the same way: open a record, <span class="click">Approve</span> / reject-with-reason, <span class="click">J</span> / <span class="click">K</span> to move on. For records you're confident about at a glance, tick their checkboxes in the list and <span class="click">Approve selected</span> to clear several at once.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">Each approval adds one item to that section's approved-evidence count back on Art. 10 — visible there as "N approved · M pending" and a small evidence-mix bar (how much of it is official vs. civil-society vs. media sourced).</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-11">
+      <div class="stage-num">11</div>
+      <span class="stage-tab">Art. 10 · Risk</span>
+      <h3>Assess and sign a section — e.g. "Presence of forest"</h3>
+      <p class="stage-sub">This is the core act of Article 10: turning approved evidence into a rating you stand behind.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">Ten section cards, each with its title, article reference, and evidence count. Expand <span class="click">Assess &amp; sign</span> on the one you're working — say, Presence of forest.</span>
+        </div>
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">
+            <ul>
+              <li>Tick which listed rule conditions the evidence actually supports — each shows its plain-language wording and what rating it implies.</li>
+              <li>The page instantly shows a <strong>Suggested</strong> rating based on what you ticked, with the evidence count backing it.</li>
+              <li>Choose your <strong>Confirmed rating</strong> — it starts on the suggestion, but you can pick differently; doing so requires an override reason.</li>
+              <li>Write the narrative conclusion, or click <span class="click">Generate narrative draft</span> to have it drafted from the approved evidence (about a minute), then edit it.</li>
+              <li><span class="click">Save draft</span> to keep working, or <span class="click">Sign</span> to finalize.</li>
+            </ul>
+          </span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">A signed assessment: version number, your name, the timestamp, and the narrative — permanently in the record for this cycle. The card's pill turns from "Not signed" to a colored rating pill, and the Overview progress bar moves.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-12">
+      <div class="stage-num">12</div>
+      <span class="stage-tab">Art. 10 · Risk</span>
+      <h3>Repeat for the other nine sections</h3>
+      <p class="stage-sub">Same card, same five sub-steps, nine more times.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text">Scroll to the next card and repeat step 11 — Legal &amp; regulatory framework, Governance, Land tenure, Forest cover, and so on through S10. If a section still has pending evidence, its card says so with a link straight back to Evidence, filtered to that section.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">A fully signed Article 10 risk assessment for Guatemala — ten ratings, each with its own evidence trail and narrative.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-13">
+      <div class="stage-num">13</div>
+      <span class="stage-tab">Checklist</span>
+      <h3>Generate the document checklist</h3>
+      <p class="stage-sub">Where Article 9's baseline and Article 10's ratings come together into one list.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text"><span class="click">Generate checklist</span>. If either article is still incomplete, a banner names exactly what's missing and the result is marked DRAFT rather than blocked outright.</span>
+        </div>
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">A grouped, editable table of required documents — each tagged <em>baseline</em> (from Art. 9), <em>risk add-on</em> (triggered by an Art. 10 rating), or both, with the reasoning spelled out per row. You can rename, remove, add a document manually, or leave a remark on any line.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">A saved, timestamped generation — the definitive supplier document list for Guatemala this cycle.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-14">
+      <div class="stage-num">14</div>
+      <span class="stage-tab">Checklist</span>
+      <h3>Export</h3>
+      <p class="stage-sub">The bottom of the same page — four buttons, no separate export screen.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You click</span>
+          <span class="beat-text"><span class="click">Risk report (docx)</span> · <span class="click">Checklist (docx)</span> · <span class="click">Checklist (xlsx)</span> · <span class="click">Audit extract (xlsx)</span> — any or all of them.</span>
+        </div>
+        <div class="produces">
+          <span class="beat-label">Produces</span>
+          <span class="beat-text">Files in the exports folder, named systematically — <span class="mono" style="font-size:12.5px;">KLK_EUDR_Guatemala_2026_risk-report_2026-08-19.docx</span> and so on — with every export logged to the audit trail. A history of past exports for this scope sits just below the buttons.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage" id="stage-15">
+      <div class="stage-num">15</div>
+      <span class="stage-tab">Overview</span>
+      <h3>Back to Overview — done</h3>
+      <p class="stage-sub">The natural place to end the story, since it's also where it started.</p>
+      <div class="stage-body">
+        <div class="beat">
+          <span class="beat-label">You see</span>
+          <span class="beat-text">Art. 9 requirements refined: full count. Art. 10 sections signed: <strong>10 / 10</strong>. Complete: <strong>100%</strong>. The <em>Recent activity</em> card lists every approval and signature from this walkthrough, newest first — the same trail an auditor would see.</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="closing">
+    <h2>What this story makes visible</h2>
+    <p>Guatemala only exists in this walkthrough as a label — the current baseline is <strong>Malaysia and Indonesia</strong>, and adding a real third country is a scope decision, not just a form. But the mechanics above are exactly what happens for either of them, today, for every cycle.</p>
+    <p>The route map at the top is the honest shape of the app: <strong>two content tabs, one shared inbox.</strong> Article 9 and Article 10 each start a research run and end with a decision on their own page — but everything in between passes through Evidence. That's not a detour; it's the one place every piece of evidence, from either article, gets the same human check before it counts for anything.</p>
+  </div>
+
+</div>
+
+<button type="button" class="back-top" id="backTop" aria-label="Back to top" title="Back to top">↑</button>
+
+<script>
+(function(){
+  function jumpTo(id){
+    var el = document.getElementById(id);
+    if(el){ el.scrollIntoView({behavior: 'smooth', block: 'start'}); }
+  }
+  document.querySelectorAll('[data-target]').forEach(function(btn){
+    btn.addEventListener('click', function(){ jumpTo(btn.getAttribute('data-target')); });
+  });
+
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.qn-chip'));
+  var chipByTarget = {};
+  chips.forEach(function(c){ chipByTarget[c.getAttribute('data-target')] = c; });
+  var stages = Array.prototype.slice.call(document.querySelectorAll('.stage[id]'));
+
+  if('IntersectionObserver' in window){
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        var chip = chipByTarget[entry.target.id];
+        if(!chip) return;
+        if(entry.isIntersecting){
+          chips.forEach(function(c){ c.classList.remove('active'); });
+          chip.classList.add('active');
+        }
+      });
+    }, {rootMargin: '-45% 0px -50% 0px', threshold: 0});
+    stages.forEach(function(s){ observer.observe(s); });
+  }
+
+  var backTop = document.getElementById('backTop');
+  window.addEventListener('scroll', function(){
+    backTop.classList.toggle('visible', window.scrollY > 480);
+  }, {passive: true});
+  backTop.addEventListener('click', function(){
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  });
+})();
+</script>

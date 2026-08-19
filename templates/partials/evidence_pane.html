@@ -1,0 +1,95 @@
+{% import "_macros.html" as macros %}
+{#- The reading pane for one evidence record. Same shape as the old one-record
+    queue card, plus source type, prev/next (J/K), and one-click reject
+    reasons instead of a dropdown-then-confirm. -#}
+{% set ev = pane.ev %}
+<article class="ev-pane" data-id="{{ ev.id }}" aria-live="polite">
+
+  <header class="ev-pane-head">
+    <span class="muted">{{ ev.section_code|code_label }}{% if ev.region_name %} · {{ ev.region_name }}{% endif %}</span>
+    <div class="ev-pane-nav">
+      {% if ev.prev_id %}<a class="btn-link" href="/evidence?country={{ sel_country.name|urlencode }}&ev={{ ev.prev_id }}"
+        hx-get="/evidence/{{ ev.prev_id }}/pane?country={{ sel_country.name|urlencode }}" hx-target="#ev-pane" hx-swap="innerHTML"
+        hx-push-url="/evidence?country={{ sel_country.name|urlencode }}&ev={{ ev.prev_id }}" title="Previous (K)">← Prev</a>{% endif %}
+      {% if ev.next_id %}<a class="btn-link" href="/evidence?country={{ sel_country.name|urlencode }}&ev={{ ev.next_id }}"
+        hx-get="/evidence/{{ ev.next_id }}/pane?country={{ sel_country.name|urlencode }}" hx-target="#ev-pane" hx-swap="innerHTML"
+        hx-push-url="/evidence?country={{ sel_country.name|urlencode }}&ev={{ ev.next_id }}" title="Next (J)">Next →</a>{% endif %}
+    </div>
+  </header>
+
+  <p class="ev-pane-claim">{{ ev.claim }}</p>
+  <div class="ev-pane-meta muted">
+    {% if ev.publisher %}<strong>{{ ev.publisher }}</strong> — {% endif %}
+    {% if ev.url %}<a href="{{ ev.url }}" target="_blank" rel="noopener">{{ ev.source_name }}</a>{% else %}{{ ev.source_name }}{% endif %}
+    {% if ev.source_type %} · <span class="source-type-tag">{{ SOURCE_TYPE_LABELS.get(ev.source_type, ev.source_type) }}</span>{% endif %}
+    · retrieved {{ ev.retrieved }}{% if ev.published %} · published {{ ev.published }}{% endif %} · {{ ev.origin }}
+    {% if ev.notes %}<br>{{ ev.notes }}{% endif %}
+  </div>
+  <div class="ev-pane-chips">
+    {{ macros.rating_chip('Confidence', ev.confidence) }}
+    {{ macros.rating_chip('Significance', ev.significance) }}
+  </div>
+
+  {% if ev.flag %}
+    {% if ev.flag == 'unlisted-source' %}
+      <div class="banner banner-warn">⚠ Source not yet trusted: <strong>{{ ev.source_name }}</strong></div>
+    {% elif ev.flag == 'possible-duplicate' %}
+      <div class="banner banner-warn">⚠ Possible duplicate of an existing record</div>
+    {% endif %}
+  {% endif %}
+
+  {% if ev.flag == 'unlisted-source' %}
+    <form method="post" action="/evidence/{{ ev.id }}/approve-source" class="stack-form">
+      <input type="hidden" name="next" value="{{ pane.after_url }}">
+      <input type="hidden" name="self" value="{{ pane.self_url }}">
+      {% if ev.url %}
+      <div class="option-group option-group-row" role="radiogroup" aria-label="Trust scope" style="justify-content:center;">
+        <label class="option-row"><input type="radio" name="trust_scope" value="website"> Trust website</label>
+        <label class="option-row"><input type="radio" name="trust_scope" value="article" checked> This article only</label>
+      </div>
+      {% else %}
+      <input type="hidden" name="trust_scope" value="article">
+      <p class="muted">No URL on this record, so only the exact source name can be trusted.</p>
+      {% endif %}
+      <label>Reason to trust this source
+        <input type="text" name="reason" required autofocus>
+      </label>
+      <button type="submit" class="btn-approve btn-block">Approve</button>
+    </form>
+    <form method="post" action="/evidence/{{ ev.id }}/decide" class="inline-form" style="margin-top:8px;">
+      <input type="hidden" name="next" value="{{ pane.after_url }}">
+      <input type="hidden" name="self" value="{{ pane.self_url }}">
+      <input type="hidden" name="decision" value="rejected">
+      <input type="hidden" name="reason" value="unlisted source rejected">
+      <button type="submit" class="btn-reject btn-block">Reject (unlisted source)</button>
+    </form>
+  {% else %}
+    <form id="ev-approve-form" method="post" action="/evidence/{{ ev.id }}/decide" class="inline-form">
+      <input type="hidden" name="next" value="{{ pane.after_url }}">
+      <input type="hidden" name="decision" value="approved">
+      <button type="submit" class="btn-approve btn-block">Approve</button>
+    </form>
+    <div class="ev-reject-row">
+      {% for r in REJECT_REASONS %}
+        {% if r != "Other (specify)" %}
+        <form method="post" action="/evidence/{{ ev.id }}/decide" class="inline-form">
+          <input type="hidden" name="next" value="{{ pane.after_url }}">
+          <input type="hidden" name="decision" value="rejected">
+          <input type="hidden" name="reason" value="{{ r }}">
+          <button type="submit" class="btn-reject-quick">{{ r }}</button>
+        </form>
+        {% endif %}
+      {% endfor %}
+      <details class="ev-reject-other">
+        <summary class="btn-reject-quick">Other…</summary>
+        <form method="post" action="/evidence/{{ ev.id }}/decide" class="stack-form" style="margin-top:6px;">
+          <input type="hidden" name="next" value="{{ pane.after_url }}">
+          <input type="hidden" name="decision" value="rejected">
+          <input type="hidden" name="reason" value="__other__">
+          <input type="text" name="reject_other" placeholder="Reason" required autofocus>
+          <button type="submit" class="btn-reject">Confirm rejection</button>
+        </form>
+      </details>
+    </div>
+  {% endif %}
+</article>
