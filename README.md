@@ -56,10 +56,3 @@ whichever machine runs this app — it isn't bundled in the Python code above.
   installed on the server and given API access (an Anthropic API key is the
   usual way to do this on a server, since there's no browser to log in
   through).
-
-## Not needed
-
-This project used to have an older interface built with a tool called
-Streamlit. That version has been fully replaced by the FastAPI app above and
-removed from the project — you don't need to install or run anything
-Streamlit-related.
