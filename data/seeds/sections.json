@@ -17,6 +17,6 @@
    "min_scope": "Labour/human rights law enforcement: forced and child labour listings, import control measures (e.g. CBP WROs), migrant workforce structure, recruitment practices, national action plans."},
   {"code": "S9", "article_refs": "10(2)(m)", "title": "Substantiated concerns", "rating_scale": "risk",
    "min_scope": "First-party grievances and coalition submissions alleging non-compliance for palm products from the country/region. Synthesis section: must reference grievance data and quantitative findings."},
-  {"code": "S10", "article_refs": "10(2)(n)", "title": "Certification & third-party schemes", "rating_scale": "support",
+  {"code": "S10", "article_refs": "10(2)(n)", "title": "Certification & third-party schemes", "rating_scale": "risk",
    "min_scope": "Coverage and content of mandatory and voluntary schemes (e.g. MSPO, ISPO, RSPO; MB/SG/IP models) against Art. 9 information requirements. Certification is supportive evidence, never a green lane."}
 ]

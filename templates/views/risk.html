@@ -91,6 +91,14 @@
   </form>
 </details>
 
+{% if cards|selectattr("source_mix")|list %}
+  <div class="evidence-mix-legend-shared">
+    {% for t in SOURCE_TYPES %}
+      <span><span class="swatch" style="background:var(--st-{{ t }});"></span>{{ SOURCE_TYPE_LABELS[t] }}</span>
+    {% endfor %}
+  </div>
+{% endif %}
+
 {% for card in cards %}
   {% include "partials/section_card.html" %}
 {% endfor %}

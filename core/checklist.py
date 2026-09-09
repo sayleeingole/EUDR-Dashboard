@@ -7,7 +7,7 @@ import json
 import uuid
 
 from . import db
-from .rules import RISK_ORDER, SUPPORT_ORDER, mitigation_rules
+from .rules import RISK_ORDER, mitigation_rules
 
 # Universal Art. 9 items — requested for every country regardless of risk.
 UNIVERSAL_ITEMS = [
@@ -22,11 +22,10 @@ UNIVERSAL_ITEMS = [
 ]
 
 
-def _meets_trigger(rating_scale, rating, trigger):
-    order = SUPPORT_ORDER if rating_scale == "support" else RISK_ORDER
-    if rating not in order or trigger not in order:
+def _meets_trigger(rating, trigger):
+    if rating not in RISK_ORDER or trigger not in RISK_ORDER:
         return False
-    return order.index(rating) >= order.index(trigger)
+    return RISK_ORDER.index(rating) >= RISK_ORDER.index(trigger)
 
 
 def latest_signed(conn, cycle_id, country_id, region_id, section_code):
@@ -160,10 +159,9 @@ def generate(conn, cycle_id, country_id, region_id, region_name, actor):
         if code not in section_ratings:
             continue
         rating, version, level = section_ratings[code]
-        scale = sections[code]["rating_scale"]
-        if not _meets_trigger(scale, rating, rule["trigger_rating"]):
+        if not _meets_trigger(rating, rule["trigger_rating"]):
             continue
-        escalation = "proof-level" if rating == "high" else None
+        escalation = "proof-level" if rating == "not_negligible" else None
         for doc in json.loads(rule["documents"] or "[]"):
             add_item(doc, None, "risk-addon",
                      f"Section {code} rated '{rating}' (signed v{version}, "

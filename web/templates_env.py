@@ -3,7 +3,7 @@ from pathlib import Path
 
 from fastapi.templating import Jinja2Templates
 
-from core.source_type import SOURCE_TYPE_LABELS
+from core.source_type import SOURCE_TYPE_LABELS, SOURCE_TYPES
 
 from .citations import linkify_citations
 
@@ -43,13 +43,14 @@ REJECT_REASONS = ["Not relevant (country/region/commodity)",
                   "Source misread / claim not supported by source",
                   "Other (specify)"]
 
-# Every rating scale (risk, benchmark, support) maps onto one 3-step visual
-# tone so a single pill component (templates/_macros.html:rating_pill) can
-# render all of them — never color alone, text label always carries the
-# actual scale term (08 §4.5).
-RATING_TONE = {"low": "low", "supportive": "low",
-               "medium": "medium", "neutral": "medium", "standard": "medium",
-               "high": "high", "weak": "high"}
+# Every rating scale (risk, benchmark) maps onto one 3-step visual tone so a
+# single pill component (templates/_macros.html:rating_pill) can render all
+# of them — never color alone, text label always carries the actual scale
+# term (08 §4.5). Risk (S2-S10) is binary negligible/not_negligible; benchmark
+# (S1) is the EU's own low/standard/high classification.
+RATING_TONE = {"negligible": "low", "low": "low",
+               "standard": "medium",
+               "not_negligible": "high", "high": "high"}
 
 def static_url(path):
     """`/static/app.js` -> `/static/app.js?v=<mtime>` so browsers pick up a
@@ -65,6 +66,7 @@ def static_url(path):
 templates.env.globals["static_url"] = static_url
 templates.env.globals["REJECT_REASONS"] = REJECT_REASONS
 templates.env.globals["SOURCE_TYPE_LABELS"] = SOURCE_TYPE_LABELS
+templates.env.globals["SOURCE_TYPES"] = SOURCE_TYPES
 templates.env.filters["code_label"] = code_label
 templates.env.globals["RATING_TONE"] = RATING_TONE
 templates.env.filters["linkify_citations"] = linkify_citations

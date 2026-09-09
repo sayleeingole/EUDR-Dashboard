@@ -15,9 +15,8 @@ from ..templates_env import templates
 
 router = APIRouter(prefix="/risk")
 
-SCALES = {"support": ["supportive", "neutral", "weak"],
-          "benchmark": ["low", "standard", "high"],
-          "risk": ["low", "medium", "high"]}
+SCALES = {"benchmark": ["low", "standard", "high"],
+          "risk": ["negligible", "not_negligible"]}
 
 
 def _scale_for(section):
@@ -49,7 +48,7 @@ def build_card(conn, cycle, sel_country, region_id, s, sec_pending):
     elif suggested in scale:
         confirmed_default = suggested
     elif approved_n == 0:
-        # Nothing approved yet — "low"/scale[0] is a real default, not a guess.
+        # Nothing approved yet — "negligible"/scale[0] is a real default, not a guess.
         confirmed_default = scale[0]
     else:
         # Evidence is approved but no rule has been ticked yet — don't
@@ -109,14 +108,6 @@ def risk_view(request: Request, country: str | None = None, region: str | None =
     cards = [build_card(conn, cycle, sel_country, ctx["region_id"], s,
                         pending_for_section(risk_pending, s["code"]))
             for s in ctx["sections"]]
-    # Bar *length* carries volume, not just proportion — otherwise a section
-    # with 2 records and one with 31 both draw a full-width bar, which reads
-    # as a rendering glitch rather than "there's much less evidence here".
-    # Floor at 10% so a section with any evidence still shows a visible bar.
-    max_approved = max((c["approved_n"] for c in cards), default=0) or 1
-    for c in cards:
-        c["source_mix_width_pct"] = (max(10, round(100 * c["approved_n"] / max_approved))
-                                     if c["approved_n"] else 0)
     ctx.update({
         "cards": cards, "risk_pending_count": len(risk_pending),
         "sources_list": db_module.get_active_sources(conn),

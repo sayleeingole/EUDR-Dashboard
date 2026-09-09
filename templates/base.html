@@ -84,6 +84,7 @@
 </main>
 </div>
 </div>
+{% if actor %}{% include "partials/chat_widget.html" %}{% endif %}
 
 <script src="{{ static_url('app.js') }}"></script>
 {% block extra_script %}{% endblock %}

@@ -13,8 +13,8 @@ from core import (checklist as checklist_engine, db, exporter, importer,
 st.set_page_config(page_title="EUDR country risk assessment", page_icon="🌿",
                    layout="wide")
 
-RATING_DOT = {"low": "🟢", "medium": "🟡", "high": "🔴",
-              "standard": "🟠", "supportive": "🟢", "neutral": "🟡", "weak": "🔴"}
+RATING_DOT = {"negligible": "🟢", "not_negligible": "🔴",
+              "low": "🟢", "standard": "🟠", "high": "🔴"}
 REJECT_REASONS = ["Not relevant (country/region/commodity)",
                   "Outdated data / wrong vintage",
                   "Duplicate",
@@ -317,12 +317,10 @@ def render_section_card(s, pending_rows):
             if section_rules:
                 st.caption(f"Suggested: **{suggested or '— insufficient basis'}**")
 
-            if s["rating_scale"] == "support":
-                scale = ["supportive", "neutral", "weak"]
-            elif s["rating_scale"] == "benchmark":
+            if s["rating_scale"] == "benchmark":
                 scale = ["low", "standard", "high"]
             else:
-                scale = ["low", "medium", "high"]
+                scale = ["negligible", "not_negligible"]
             default_idx = scale.index(current["confirmed_rating"]) \
                 if current and current["confirmed_rating"] in scale \
                 else (scale.index(suggested) if suggested in scale else 0)

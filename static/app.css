@@ -289,6 +289,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--sp-3); }
 .card-header h4 { margin: 0 0 4px; font-size: var(--fs-base); }
+.narrative-text { text-align: justify; text-justify: inter-word; }
 
 /* ---------- stat blocks (CountryRisk-style summary row) ---------- */
 .stat-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin: var(--sp-3) 0; }
@@ -755,15 +756,37 @@ details.panel > .stack-form {
 
 /* ---------- evidence source mix (Sections cards) ---------- */
 .evidence-mix { margin-top: 2px; }
+.evidence-mix-above-narrative { margin-top: 10px; }
 .evidence-mix-warn { margin: 6px 0 0; padding: var(--sp-1) var(--sp-2); font-size: var(--fs-xs); }
 
 .source-type-tag { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); }
 
-/* ---------- evidence source mix — segmented bar + legend ---------- */
-.evidence-mix-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 1px; margin-top: 4px; }
+/* ---------- evidence source mix — one shared color key for all cards ---------- */
+.evidence-mix-legend-shared { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 10px 0; padding: var(--sp-2) var(--sp-3); background: var(--surface-alt); border-radius: var(--radius-sm); font-size: var(--fs-xs); color: var(--ink-muted); }
+.evidence-mix-legend-shared .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+
+/* ---------- evidence source mix — segmented bar ---------- */
+.evidence-mix-bar { display: flex; width: 100%; height: 8px; border-radius: 4px; overflow: hidden; gap: 1px; margin-top: 4px; }
 .evidence-mix-seg { min-width: 2px; }
-.evidence-mix-legend { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; font-size: var(--fs-xs); color: var(--ink-muted); }
-.evidence-mix-legend .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+
+/* ---------- evidence source mix — overview stacked bar ---------- */
+.evidence-headline { display: flex; align-items: center; gap: var(--sp-3); margin: 2px 0 var(--sp-3); flex-wrap: wrap; }
+.evidence-headline-stat { font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -0.02em; flex-shrink: 0; }
+.evidence-headline-text { font-size: var(--fs-sm); color: var(--ink-muted); line-height: 1.4; }
+.evidence-stackbar {
+  display: flex; height: 28px; border-radius: 6px; overflow: hidden; gap: 2px;
+}
+.evidence-stackbar-seg {
+  display: flex; align-items: center; justify-content: center; min-width: 4px;
+  transition: flex 240ms ease;
+}
+.evidence-stackbar-seg span {
+  font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 1px 1px rgba(0,0,0,0.25);
+  white-space: nowrap; overflow: hidden;
+}
+.evidence-chip-row { display: flex; flex-wrap: nowrap; gap: 14px; margin-top: var(--sp-3); overflow-x: auto; }
+.evidence-chip { display: inline-flex; align-items: center; font-size: 11px; color: var(--ink); white-space: nowrap; flex-shrink: 0; }
+.evidence-chip .swatch { width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; flex-shrink: 0; }
 
 /* ---------- Evidence: split view (list left, reading pane right) ---------- */
 .ev-head { display: flex; flex-direction: column; gap: 4px; margin-bottom: var(--sp-2); }
@@ -815,8 +838,14 @@ details.panel > .stack-form {
   box-shadow: var(--shadow-raised); padding: var(--sp-5); font-size: var(--fs-sm);
   max-height: calc(100vh - var(--sp-8)); overflow-y: auto;
 }
-.ev-pane-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--sp-2); }
+.ev-pane-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--sp-3); margin-bottom: var(--sp-2); }
 .ev-pane-nav { display: flex; gap: var(--sp-3); white-space: nowrap; }
+.ev-move-form { display: inline-flex; align-items: center; gap: 6px; }
+.ev-move-select {
+  font-size: var(--fs-xs); padding: 2px 6px; border-radius: var(--radius-sm);
+  color: var(--ink-muted); background: var(--surface-alt); border: 1px solid var(--line);
+  cursor: pointer;
+}
 .ev-pane-claim { font-size: var(--fs-base); font-weight: 600; margin: 0 0 var(--sp-2); }
 .ev-pane-meta { margin-bottom: var(--sp-2); }
 .ev-pane-chips { display: flex; gap: 6px; margin-bottom: var(--sp-3); }
@@ -828,3 +857,32 @@ details.panel > .stack-form {
 }
 .btn-reject-quick:hover { background: var(--danger-tint); }
 .ev-reject-other { display: inline-block; }
+
+/* ---------- floating chat widget ---------- */
+.chat-widget { position: fixed; right: var(--sp-5); bottom: var(--sp-5); z-index: 200; }
+.chat-fab {
+  width: 52px; height: 52px; border-radius: 50%; border: none;
+  background: var(--brand); color: #fff; font-size: 22px; line-height: 1;
+  box-shadow: var(--shadow-raised); cursor: pointer; padding: 0;
+}
+.chat-fab:hover { background: var(--brand-dark); }
+.chat-panel {
+  position: absolute; right: 0; bottom: 64px; width: 340px; max-height: 480px;
+  display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--line-soft); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-raised); overflow: hidden;
+}
+.chat-panel[hidden] { display: none; }
+.chat-panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
+  padding: var(--sp-3); border-bottom: 1px solid var(--line-soft); font-size: var(--fs-sm); font-weight: 600;
+}
+.chat-context-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-widget-body { padding: var(--sp-3); overflow-y: auto; flex: 1; }
+.chat-q { margin: 0 0 2px; font-size: var(--fs-sm); }
+.chat-a { margin: 0 0 10px; font-size: var(--fs-sm); white-space: pre-wrap; }
+.chat-error { margin-bottom: 8px; }
+.chat-empty-hint { margin: 0; }
+.chat-clear-form { margin-top: 4px; }
+.chat-ask-form { display: flex; gap: 6px; padding: var(--sp-3); border-top: 1px solid var(--line-soft); }
+.chat-ask-form input[type=text] { flex: 1; }

@@ -16,8 +16,8 @@ from fastapi.staticfiles import StaticFiles
 from core import db as db_module
 
 from .auth import NotAuthenticated
-from .routers import (audit, auth_router, checklist, cycles, evidence, legal,
-                      overview, research, risk, settings, sources)
+from .routers import (audit, auth_router, chat, checklist, cycles, evidence,
+                      legal, overview, research, risk, settings, sources)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -47,6 +47,7 @@ app.include_router(cycles.router)
 app.include_router(settings.router)
 app.include_router(sources.router)
 app.include_router(research.router)
+app.include_router(chat.router)
 
 
 @app.get("/")

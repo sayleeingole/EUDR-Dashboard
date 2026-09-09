@@ -3,10 +3,26 @@
     queue card, plus source type, prev/next (J/K), and one-click reject
     reasons instead of a dropdown-then-confirm. -#}
 {% set ev = pane.ev %}
-<article class="ev-pane" data-id="{{ ev.id }}" aria-live="polite">
+<article class="ev-pane" data-id="{{ ev.id }}" data-chat-type="evidence" aria-live="polite">
 
   <header class="ev-pane-head">
-    <span class="muted">{{ ev.section_code|code_label }}{% if ev.region_name %} · {{ ev.region_name }}{% endif %}</span>
+    <div class="ev-pane-crumb muted">
+      {{ ev.section_code|code_label }}{% if ev.region_name %} · {{ ev.region_name }}{% endif %}
+      <form method="post" action="/evidence/{{ ev.id }}/move-section" class="ev-move-form">
+        <input type="hidden" name="next" value="{{ pane.after_url }}">
+        <span class="muted">· filed under wrong section?</span>
+        <select name="section_code" class="ev-move-select" title="Move this evidence to a different section"
+                onchange="if(this.value) this.form.requestSubmit();">
+          <option value="">Move to…</option>
+          {% for s in sections if s.code != ev.section_code %}
+            <option value="{{ s.code }}">{{ s.code }} · {{ s.title }} (risk assessment)</option>
+          {% endfor %}
+          {% for a in areas if a.code != ev.section_code %}
+            <option value="{{ a.code }}">{{ a.code }} · {{ a.title }} (legality)</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
     <div class="ev-pane-nav">
       {% if ev.prev_id %}<a class="btn-link" href="/evidence?country={{ sel_country.name|urlencode }}&ev={{ ev.prev_id }}"
         hx-get="/evidence/{{ ev.prev_id }}/pane?country={{ sel_country.name|urlencode }}" hx-target="#ev-pane" hx-swap="innerHTML"

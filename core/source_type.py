@@ -59,7 +59,8 @@ def source_mix_segments(mix):
         return []
     return [
         {"type": t, "label": SOURCE_TYPE_LABELS[t], "count": mix[t],
-         "pct": round(100 * mix[t] / total), "css_var": f"--st-{t}"}
+         "pct": round(100 * mix[t] / total),
+         "exact_pct": round(100 * mix[t] / total, 4), "css_var": f"--st-{t}"}
         for t in SOURCE_TYPES if mix.get(t)
     ]
 

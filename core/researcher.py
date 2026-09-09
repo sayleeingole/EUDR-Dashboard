@@ -213,6 +213,14 @@ def _invoke_claude(prompt, model, allowed_tools, timeout_s):
     return proc.stdout
 
 
+def ask(prompt, model="sonnet", timeout_s=180):
+    """One-off question/answer pass (web search allowed, no JSON schema) — used
+    by the evidence-pane chatbot to explain a claim or look up its underlying
+    reference law. Thin public wrapper so callers outside this module don't
+    reach into `_invoke_claude` directly."""
+    return _invoke_claude(prompt, model, "WebSearch,WebFetch", timeout_s)
+
+
 def draft_narrative(run_type, country, region, cycle_year, items, ev_records,
                     existing_claims=None, model="sonnet", timeout_s=600,
                     attempts=2):

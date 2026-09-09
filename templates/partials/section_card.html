@@ -2,27 +2,24 @@
 {% set tone = macros.tone_of(card.current.confirmed_rating if card.current else None, card.current.status if card.current else None) %}
 <div class="card accent-left accent-{{ tone }}" id="section-{{ card.code }}">
   <div class="card-header">
-    <div>
+    <div style="flex:1; min-width:0;">
       <span class="micro-label">Section {{ card.code }} · Art. {{ card.s.article_refs }}</span>
       <h4>{{ card.s.title }}</h4>
       <span class="muted">{{ card.approved_n }} approved · {{ card.sec_pending|length }} pending</span>
-      {% if card.source_mix %}
-        <div class="evidence-mix" title="Where this section's approved evidence comes from">
-          <div class="evidence-mix-bar" style="width:{{ card.source_mix_width_pct }}%;">
-            {% for seg in card.source_mix %}
-              <div class="evidence-mix-seg" style="flex:{{ seg.pct }}; background:var({{ seg.css_var }});" title="{{ seg.label }}: {{ seg.count }}"></div>
-            {% endfor %}
+      {% if not (card.current and card.current.status == 'signed') %}
+        {% if card.source_mix %}
+          <div class="evidence-mix" title="Where this section's approved evidence comes from">
+            <div class="evidence-mix-bar">
+              {% for seg in card.source_mix %}
+                <div class="evidence-mix-seg" style="flex:{{ seg.pct }}; background:var({{ seg.css_var }});" title="{{ seg.label }}: {{ seg.count }}"></div>
+              {% endfor %}
+            </div>
           </div>
-          <div class="evidence-mix-legend">
-            {% for seg in card.source_mix %}
-              <span><span class="swatch" style="background:var({{ seg.css_var }});"></span>{{ seg.label }} {{ seg.count }}</span>
-            {% endfor %}
-          </div>
-        </div>
-      {% endif %}
-      {% if card.source_mix_lopsided %}
-        <div class="banner banner-warn evidence-mix-warn">⚠ All approved evidence here is official/industry — no civil-society, academic
-          or media source. Worth a deliberate check for this topic; see <a href="/settings/sources">Trusted sources</a> to add one.</div>
+        {% endif %}
+        {% if card.source_mix_lopsided %}
+          <div class="banner banner-warn evidence-mix-warn">⚠ All approved evidence here is official/industry — no civil-society, academic
+            or media source. Worth a deliberate check for this topic; see <a href="/settings/sources">Trusted sources</a> to add one.</div>
+        {% endif %}
       {% endif %}
     </div>
     <div style="text-align:right;">
@@ -40,7 +37,20 @@
   </div>
 
   {% if card.current and card.current.status == 'signed' %}
-    <p>{{ card.current.narrative|linkify_citations(card.approved_ev) }}</p>
+    {% if card.source_mix %}
+      <div class="evidence-mix evidence-mix-above-narrative" title="Where this section's approved evidence comes from">
+        <div class="evidence-mix-bar">
+          {% for seg in card.source_mix %}
+            <div class="evidence-mix-seg" style="flex:{{ seg.pct }}; background:var({{ seg.css_var }});" title="{{ seg.label }}: {{ seg.count }}"></div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    {% if card.source_mix_lopsided %}
+      <div class="banner banner-warn evidence-mix-warn">⚠ All approved evidence here is official/industry — no civil-society, academic
+        or media source. Worth a deliberate check for this topic; see <a href="/settings/sources">Trusted sources</a> to add one.</div>
+    {% endif %}
+    <p class="narrative-text">{{ card.current.narrative|linkify_citations(card.approved_ev) }}</p>
     {% if card.current.override_reason %}<p class="muted">Override reason: {{ card.current.override_reason }}</p>{% endif %}
   {% endif %}
 

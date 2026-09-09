@@ -45,6 +45,29 @@
   <div class="progress-bar" style="margin-top:8px;"><div style="width:{{ pct }}%;"></div></div>
 </div>
 
+{% if evidence_mix %}
+{% set top = evidence_mix[0] %}
+<div class="card">
+  <span class="micro-label">Source Type Breakdown</span>
+  <div class="evidence-headline">
+    <span class="evidence-headline-stat" style="color:var({{ top.css_var }});">{{ top.pct }}%</span>
+    <span class="evidence-headline-text">{{ top.label }} — the largest source type, out of {{ evidence_mix_total }} approved source{{ 's' if evidence_mix_total != 1 else '' }} used in this assessment</span>
+  </div>
+  <div class="evidence-stackbar" role="img" aria-label="Breakdown of approved evidence by source type">
+    {% for seg in evidence_mix %}
+      <div class="evidence-stackbar-seg" style="flex:{{ seg.exact_pct }}; background:var({{ seg.css_var }});" title="{{ seg.label }}: {{ seg.count }} ({{ seg.pct }}%)">
+        <span>{{ seg.pct }}%</span>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="evidence-chip-row">
+    {% for seg in evidence_mix %}
+      <span class="evidence-chip"><span class="swatch" style="background:var({{ seg.css_var }});"></span>{{ seg.label }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% if palm_map %}
 <div class="card">
   <span class="micro-label">Palm oil producing areas — {{ scope_label }}</span>

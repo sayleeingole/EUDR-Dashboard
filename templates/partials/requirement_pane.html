@@ -6,7 +6,7 @@
 {% set r = pane.r %}
 {% set is_cand = r.relevance == 'candidate' %}
 {% set nodes = (r.supply_chain_node or '').split(',') %}
-<article class="req-pane" data-id="{{ r.id }}" aria-live="polite">
+<article class="req-pane" data-id="{{ r.id }}" data-chat-type="requirement" aria-live="polite">
 
   <header class="req-pane-head">
     <div class="req-pane-crumb muted">

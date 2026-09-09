@@ -282,3 +282,106 @@
     });
   });
 })();
+
+// ---- Floating "ask about what's open" chat bubble (templates/partials/
+// chat_widget.html). Its context is never its own state — it reads
+// whichever of .req-pane / .ev-pane is currently in the DOM (data-chat-type
+// / data-id / data-chat-label, set by requirement_pane.html / evidence_pane
+// .html) and feeds that into the hidden fields on the persistent ask-form.
+// Re-synced on load and after every htmx pane swap, since J/K navigation
+// swaps #req-pane / #ev-pane without a full page reload.
+(function () {
+  const widget = document.getElementById("chat-widget");
+  if (!widget) return;
+  const fab = document.getElementById("chat-fab");
+  const panel = document.getElementById("chat-panel");
+  const closeBtn = document.getElementById("chat-panel-close");
+  const typeInput = document.getElementById("chat-context-type");
+  const idInput = document.getElementById("chat-context-id");
+  const question = document.getElementById("chat-question");
+  const askBtn = document.getElementById("chat-ask-btn");
+
+  function currentPane() {
+    const req = document.querySelector(".req-pane");
+    if (req) return { type: "requirement", id: req.dataset.id };
+    const ev = document.querySelector(".ev-pane");
+    if (ev) return { type: "evidence", id: ev.dataset.id };
+    return null;
+  }
+
+  // The panel header is a fixed "How can I help you?" greeting — the actual
+  // context (which law/claim) is sent to the backend via the hidden fields
+  // below, never displayed, per feedback that the full claim/law text in
+  // the header was too much to read.
+  function syncContext() {
+    const ctx = currentPane();
+    if (!ctx) {
+      typeInput.value = ""; idInput.value = "";
+      question.disabled = true; askBtn.disabled = true;
+      return null;
+    }
+    const changed = typeInput.value !== ctx.type || idInput.value !== String(ctx.id);
+    typeInput.value = ctx.type; idInput.value = ctx.id;
+    question.disabled = false; askBtn.disabled = false;
+    return changed;
+  }
+
+  function loadStatus() {
+    const ctx = currentPane();
+    if (!ctx || typeof htmx === "undefined") return;
+    htmx.ajax("GET", "/chat/status?context_type=" + ctx.type + "&context_id=" + ctx.id,
+      { target: "#chat-widget-body", swap: "innerHTML" });
+  }
+
+  fab.addEventListener("click", function () {
+    const wasHidden = panel.hidden;
+    panel.hidden = !panel.hidden;
+    if (wasHidden) { syncContext(); loadStatus(); }
+  });
+  closeBtn.addEventListener("click", function () { panel.hidden = true; });
+
+  // A pane swap (J/K nav, list-row click) means the context underneath the
+  // widget changed — re-sync, and if the panel's open, load that record's
+  // own conversation (each context has its own history).
+  document.body.addEventListener("htmx:afterSwap", function (e) {
+    const id = e.detail.target.id;
+    if (id !== "req-pane" && id !== "ev-pane") return;
+    const changed = syncContext();
+    if (!panel.hidden && changed) loadStatus();
+  });
+
+  // After an ask/clear/poll response swaps #chat-widget-body, clear the
+  // question box (its echo now shows in the transcript) and reflect whether
+  // Claude is still thinking. All three swap outerHTML, so e.detail.target
+  // is the OLD (now-detached) element — re-query the live one by id rather
+  // than trust its dataset.
+  document.body.addEventListener("htmx:afterSwap", function (e) {
+    if (e.detail.target.id !== "chat-widget-body") return;
+    const body = document.getElementById("chat-widget-body");
+    const thinking = body && body.dataset.status === "thinking";
+    question.value = "";
+    question.disabled = thinking; askBtn.disabled = thinking;
+  });
+
+  // Without this, a failed request inside the widget (server not restarted
+  // after an update, a dropped connection, an unexpected 500) swaps nothing
+  // and just logs to the console — from the reviewer's side that reads as
+  // "I clicked Ask and nothing happened". Surface it in the panel instead.
+  function showRequestError(err) {
+    const body = document.getElementById("chat-widget-body");
+    if (!body) return;
+    body.dataset.status = "idle";
+    body.innerHTML = '<div class="banner banner-error chat-error">'
+      + "Couldn't reach the server (" + err + "). If the app was just updated, "
+      + "restart it and refresh this page.</div>";
+    question.disabled = false; askBtn.disabled = false;
+  }
+  widget.addEventListener("htmx:responseError", function (e) {
+    showRequestError("status " + e.detail.xhr.status);
+  });
+  widget.addEventListener("htmx:sendError", function () {
+    showRequestError("no response");
+  });
+
+  syncContext();
+})();

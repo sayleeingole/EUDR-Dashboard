@@ -1,0 +1,30 @@
+{#- Swappable inner content of the floating chat panel — returned by
+    /chat/ask, /chat/status (polling while "thinking") and /chat/clear.
+    data-status is read by static/app.js to enable/disable the persistent
+    ask-form that lives outside this swapped block. -#}
+<div id="chat-widget-body" class="chat-widget-body" data-status="{{ chat.status }}"
+    {% if chat.status == 'thinking' %}
+    hx-get="/chat/status?context_type={{ context_type }}&context_id={{ context_id }}"
+    hx-trigger="every 2s" hx-swap="outerHTML"
+    {% endif %}>
+  {% if chat.turns %}
+    {% for t in chat.turns %}
+      <p class="chat-q"><strong>You:</strong> {{ t.question }}</p>
+      {% if t.answer %}
+        <p class="chat-a">{{ t.answer }}</p>
+      {% elif loop.last and chat.status == 'thinking' %}
+        <p class="chat-a muted">Thinking…</p>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if chat.error %}
+    <div class="banner banner-error chat-error">{{ chat.error }}</div>
+  {% endif %}
+  {% if chat.turns %}
+  <form hx-post="/chat/clear" hx-target="#chat-widget-body" hx-swap="outerHTML" class="inline-form chat-clear-form">
+    <input type="hidden" name="context_type" value="{{ context_type }}">
+    <input type="hidden" name="context_id" value="{{ context_id }}">
+    <button type="submit" class="btn-link">Clear conversation</button>
+  </form>
+  {% endif %}
+</div>

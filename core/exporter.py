@@ -18,13 +18,11 @@ from .checklist import latest_signed, supplier_minimum_items
 BASE_DIR = Path(__file__).resolve().parent.parent
 EXPORTS_DIR = BASE_DIR / "exports"
 
-RATING_COLORS = {"high": RGBColor(0xA3, 0x2D, 0x2D),
-                 "medium": RGBColor(0x85, 0x4F, 0x0B),
+RATING_COLORS = {"not_negligible": RGBColor(0xA3, 0x2D, 0x2D),
+                 "high": RGBColor(0xA3, 0x2D, 0x2D),
                  "standard": RGBColor(0x85, 0x4F, 0x0B),
-                 "low": RGBColor(0x3B, 0x6D, 0x11),
-                 "supportive": RGBColor(0x3B, 0x6D, 0x11),
-                 "neutral": RGBColor(0x85, 0x4F, 0x0B),
-                 "weak": RGBColor(0xA3, 0x2D, 0x2D)}
+                 "negligible": RGBColor(0x3B, 0x6D, 0x11),
+                 "low": RGBColor(0x3B, 0x6D, 0x11)}
 
 
 def _filename(country, region, cycle_year, doctype, ext):

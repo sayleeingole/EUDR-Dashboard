@@ -1,0 +1,23 @@
+{#- Floating "ask about what's open" chat bubble, included once in base.html
+    so it's present on every page. Its context is never its own — JS reads
+    whichever of .req-pane / .ev-pane is currently in the DOM (data-chat-type
+    / data-id / data-chat-label) and feeds that to /chat/ask. The answer
+    only ever appears in this floating panel, never written into the pane
+    itself. See static/app.js for the wiring. -#}
+<div id="chat-widget" class="chat-widget">
+  <button id="chat-fab" class="chat-fab" type="button" title="Ask about what's open">💬</button>
+  <div id="chat-panel" class="chat-panel" hidden>
+    <div class="chat-panel-head">
+      <span id="chat-context-label" class="chat-context-label">How can I help you?</span>
+      <button type="button" id="chat-panel-close" class="btn-link" aria-label="Close">✕</button>
+    </div>
+    <div id="chat-widget-body" class="chat-widget-body" data-status="idle"></div>
+    <form id="chat-ask-form" hx-post="/chat/ask" hx-target="#chat-widget-body" hx-swap="outerHTML"
+         class="chat-ask-form">
+      <input type="hidden" name="context_type" id="chat-context-type" value="">
+      <input type="hidden" name="context_id" id="chat-context-id" value="">
+      <input type="text" name="question" id="chat-question" placeholder="Ask about what's open…" disabled required>
+      <button type="submit" id="chat-ask-btn" disabled>Ask</button>
+    </form>
+  </div>
+</div>

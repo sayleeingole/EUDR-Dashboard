@@ -83,7 +83,7 @@
       <span>Reference law</span><span>Description</span><span>Applies to</span><span>Status</span>
     </div>
     {% for g in groups %}
-    <details class="req-group" open data-area="{{ g.code }}">
+    <details class="req-group" {% if g.rows|selectattr('id', 'equalto', selected_id)|list %}open{% endif %} data-area="{{ g.code }}">
       <summary class="req-group-head">
         <span class="req-group-code">{{ g.code }}</span>
         <span class="req-group-title">{{ g.title }}</span>

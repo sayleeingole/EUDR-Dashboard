@@ -95,6 +95,8 @@ def evidence_view(request: Request, country: str | None = None, region: str | No
         "pane": _pane_context(rows, selected_id, sel_country["name"]) if selected_id else None,
         "batch_count": sum(1 for r in rows if r["flag"] is None),
         "list_url": _ev_url(sel_country["name"]),
+        "sections": db_module.get_sections(conn),
+        "areas": db_module.get_legal_areas(conn),
     })
     return templates.TemplateResponse(request, "views/evidence.html", ctx)
 
@@ -111,6 +113,8 @@ def evidence_pane(evidence_id: int, request: Request, country: str | None = None
     if pane is None:
         raise HTTPException(status_code=404)
     ctx["pane"] = pane
+    ctx["sections"] = db_module.get_sections(conn)
+    ctx["areas"] = db_module.get_legal_areas(conn)
     return templates.TemplateResponse(request, "partials/evidence_pane.html", ctx)
 
 
@@ -165,6 +169,18 @@ def decide(evidence_id: int, request: Request, decision: str = Form(...),
         return RedirectResponse(with_flash(nxt, ok="Approved.", undo=evidence_id),
                                 status_code=303)
     return RedirectResponse(with_flash(nxt, ok="Rejected."), status_code=303)
+
+
+@router.post("/{evidence_id}/move-section")
+def move_section(evidence_id: int, request: Request, section_code: str = Form(...),
+                 nxt: str = Form("/evidence", alias="next"),
+                 conn=Depends(get_conn), actor: str = Depends(current_actor)):
+    try:
+        db_module.move_evidence_section(conn, evidence_id, section_code, actor)
+    except ValueError as err:
+        return RedirectResponse(with_flash(nxt, error=str(err)), status_code=303)
+    return RedirectResponse(with_flash(nxt, ok=f"Moved to {section_code}."),
+                            status_code=303)
 
 
 @router.post("/{evidence_id}/undo")

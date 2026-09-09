@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, Request
 from core import checklist as checklist_engine
 from core import db as db_module
 from core.palm_regions import regions_for
+from core.source_type import source_mix, source_mix_segments
 
 from ..common import base_context
 from ..deps import current_actor, get_conn
@@ -23,13 +24,15 @@ def overview_view(request: Request, country: str | None = None, region: str | No
     if not cycle or not sel_country:
         ctx.update({"tiles": [], "signed_count": 0, "total_sections": 0,
                     "total_requirements": 0, "refined_requirements": 0,
-                    "needs": [], "gaps": [], "recent": [], "palm_map": None})
+                    "needs": [], "gaps": [], "recent": [], "palm_map": None,
+                    "evidence_mix": [], "evidence_mix_total": 0})
         return templates.TemplateResponse(request, "views/overview.html", ctx)
 
     sections = db_module.get_sections(conn)
     tiles = []
     signed_count = 0
     draft_sections = []
+    all_approved_ev = []
     for s in sections:
         a, level = checklist_engine.latest_signed(conn, cycle["id"], sel_country["id"],
                                                    region_id, s["code"])
@@ -40,6 +43,11 @@ def overview_view(request: Request, country: str | None = None, region: str | No
         if current and current["status"] == "draft":
             draft_sections.append(s)
         tiles.append({"s": s, "assessment": a, "current": current})
+        all_approved_ev.extend(db_module.approved_evidence(
+            conn, cycle["id"], sel_country["id"], region_id, s["code"]))
+
+    evidence_mix = sorted(source_mix_segments(source_mix(all_approved_ev)),
+                         key=lambda seg: -seg["count"])
 
     pending_all = db_module.pending_evidence(conn, cycle["id"], sel_country["id"])
     reqs = db_module.get_requirements(conn, cycle["id"], sel_country["id"])
@@ -79,5 +87,6 @@ def overview_view(request: Request, country: str | None = None, region: str | No
         "total_requirements": len(reqs), "refined_requirements": refined_count,
         "needs": needs, "gaps": gaps, "recent": recent,
         "palm_map": regions_for(sel_country["iso3"]),
+        "evidence_mix": evidence_mix, "evidence_mix_total": len(all_approved_ev),
     })
     return templates.TemplateResponse(request, "views/overview.html", ctx)

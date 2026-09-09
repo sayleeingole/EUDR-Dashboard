@@ -701,7 +701,7 @@ def add_evidence(conn, *, cycle_id, country_id, region_id, section_code, claim,
         " verification_docs, applicability, supply_chain_node, is_mandatory,"
         " alt_document, mandatory_condition, source_type, supersedes_id, created_by,"
         " created_at)"
-        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,'pending',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+        " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'pending',?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         (cycle_id, country_id, region_id, section_code, claim, value, source_id,
          source_name, publisher, url, published, retrieved, origin, batch_file, notes, flag,
          confidence, significance, req_type, authority, docs_json, applicability,
@@ -714,6 +714,38 @@ def add_evidence(conn, *, cycle_id, country_id, region_id, section_code, claim,
                  "flag": flag}, actor=actor)
     conn.commit()
     return cur.lastrowid
+
+
+def move_evidence_section(conn, evidence_id, new_section_code, actor):
+    """Re-file a still-pending evidence record under a different section
+    (e.g. a claim gathered under a legality area that actually belongs to a
+    risk-assessment section, or vice versa). Same idea as
+    move_requirement_area, but simpler: since the record hasn't been
+    approved yet, there's no promoted legal_requirements row to keep in
+    sync — decide_evidence reads section_code at approval time, so moving
+    it first means it lands (or doesn't land) in legal_requirements
+    correctly from then on."""
+    ev = conn.execute("SELECT * FROM evidence WHERE id=?", (evidence_id,)).fetchone()
+    if ev is None:
+        raise ValueError("Unknown evidence.")
+    if ev["status"] != "pending":
+        raise ValueError("Only pending evidence can be moved.")
+    valid_codes = ({s["code"] for s in get_sections(conn)}
+                  | {a["code"] for a in get_legal_areas(conn)})
+    if new_section_code not in valid_codes:
+        raise ValueError("Unknown section.")
+    old_section_code = ev["section_code"]
+    if new_section_code == old_section_code:
+        return
+    conn.execute("UPDATE evidence SET section_code=? WHERE id=?",
+                (new_section_code, evidence_id))
+    country = conn.execute("SELECT name FROM countries WHERE id=?",
+                           (ev["country_id"],)).fetchone()
+    audit(conn, "evidence_section_moved", "evidence", entity_id=evidence_id,
+          country=country["name"], section_code=new_section_code,
+          before={"section_code": old_section_code},
+          after={"section_code": new_section_code}, actor=actor)
+    conn.commit()
 
 
 def decide_evidence(conn, evidence_id, decision, reason, actor):

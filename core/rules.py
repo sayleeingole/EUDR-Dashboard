@@ -5,8 +5,7 @@ suggestion is never binding."""
 
 import json
 
-RISK_ORDER = ["low", "medium", "high"]
-SUPPORT_ORDER = ["weak", "neutral", "supportive"]
+RISK_ORDER = ["negligible", "not_negligible"]
 
 
 def rating_rules(conn, section_code):
@@ -27,19 +26,16 @@ def mitigation_rules(conn, section_code=None):
 def suggest(rating_scale, met_rules):
     """Derive suggested rating from the met rules' suggested_rating values.
 
-    risk scale: most severe among met rules; no met rules -> None
-    support scale (S10): least favourable among met rules; none -> None
-    benchmark scale (S1): taken from evidence directly, not rules -> None
+    risk scale (S2-S10): most severe among met rules wins — any single met
+    rule pointing to not_negligible makes the section not_negligible; no met
+    rules -> None.
+    benchmark scale (S1): taken from evidence directly, not rules -> None.
     """
     ratings = [r["suggested_rating"] for r in met_rules if r["suggested_rating"]]
     if not ratings:
         return None
-    if rating_scale == "support":
-        order = SUPPORT_ORDER
-        idx = min(order.index(x) for x in ratings if x in order)
-    else:
-        order = RISK_ORDER
-        idx = max(order.index(x) for x in ratings if x in order)
+    order = RISK_ORDER
+    idx = max(order.index(x) for x in ratings if x in order)
     return order[idx]
 
 
